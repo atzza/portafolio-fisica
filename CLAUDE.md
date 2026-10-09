@@ -73,10 +73,9 @@ Sin frameworks ni paso de compilación: HTML, CSS y JavaScript puros. Se abre co
 
 ## Pendientes al 9 de octubre
 
-- Azarela debe ver el video del tema 5 y confirmar que el instante 9:19 muestra el mecanismo
-  del gatillo; si no, corregir el minuto en el texto y en `?start=559` del iframe.
 - Publicar en GitHub Pages y entregar en Moodle la URL del sitio y la del repositorio.
   El repo local ya existe con identidad propia (afernandezsi@ucenfotec.ac.cr), sin remoto todavía.
 - En celular, las cuatro cajas de ecuaciones del diagrama del tema 3 quedan a la derecha y hay
   que deslizar dentro del recuadro para verlas.
 - Hecho el 8 de octubre: los 10 enlaces de "Fuentes" cargan (PX4 y Unity apuntan a la página correcta).
+- Hecho el 9 de octubre: Azarela revisó el video del tema 5 y el instante 9:19 está bien.
