@@ -73,8 +73,10 @@ Sin frameworks ni paso de compilación: HTML, CSS y JavaScript puros. Se abre co
 
 ## Pendientes al 9 de octubre
 
-- Publicar en GitHub Pages y entregar en Moodle la URL del sitio y la del repositorio.
-  El repo local ya existe con identidad propia (afernandezsi@ucenfotec.ac.cr), sin remoto todavía.
+- Entregar en Moodle la URL del sitio y la del repositorio (las hace Azarela).
+- Publicado el 9 de octubre: sitio https://atzza.github.io/portafolio-fisica/ y repositorio
+  https://github.com/atzza/portafolio-fisica (GitHub Pages desde `main`, carpeta raíz).
+  Los commits usan la identidad local del repo (afernandezsi@ucenfotec.ac.cr), ligada a atzza.
 - En celular, las cuatro cajas de ecuaciones del diagrama del tema 3 quedan a la derecha y hay
   que deslizar dentro del recuadro para verlas.
 - Hecho el 8 de octubre: los 10 enlaces de "Fuentes" cargan (PX4 y Unity apuntan a la página correcta).
