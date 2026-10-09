@@ -37,22 +37,7 @@ const Entradas = (function () {
     return total;
   }
 
-  // Flecha de un vector: se coloca con su origen y sus componentes en pixeles
-  function flecha(padre, clase = "flecha") {
-    const g = S("g", { class: clase }, padre);
-    const linea = S("line", { x1: 0, y1: 0, y2: 0, "stroke-width": 2.5, "stroke-linecap": "round" }, g);
-    const punta = S("path", { d: "M0 0 L-9 -5 L-9 5 Z" }, g);
-    return {
-      poner(x, y, dx, dy) {
-        const largo = Math.hypot(dx, dy);
-        g.style.display = largo < 6 ? "none" : "";
-        if (largo < 6) return;
-        g.setAttribute("transform", `translate(${x},${y}) rotate(${(Math.atan2(dy, dx) * 180) / Math.PI})`);
-        linea.setAttribute("x2", largo - 6);
-        punta.setAttribute("transform", `translate(${largo},0)`);
-      },
-    };
-  }
+  const flecha = Fis.flecha;
 
   // Texto de datos en la esquina, como la consola de un programa
   function hud(svg, lineas) {

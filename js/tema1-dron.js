@@ -73,6 +73,7 @@
     // Zona sensible: todo el panel
     const zona = Fis.svg("rect", { x: m.i, y: 0, width: W - m.i - m.d, height: H, fill: "transparent" }, svg);
     const mover = (ev) => {
+      if (vuelo || pausadoEn !== null) detener(false);
       const r = svg.getBoundingClientRect();
       const t = ((ev.clientX - r.left - m.i) / (W - m.i - m.d)) * T_MAX;
       fijar(Math.max(0, Math.min(T_MAX, t)));
@@ -81,7 +82,7 @@
     zona.addEventListener("pointerdown", mover);
   }
 
-  let puntoMapa, escalaMapa;
+  let puntoMapa, escalaMapa, flechaV, flechaA, etqV, etqA, rumbo = 0;
   function dibujarMapa() {
     const caja = document.getElementById("graf-ruta");
     caja.innerHTML = "";
@@ -107,15 +108,40 @@
     Fis.svg("text", { class: "etq", x: sx(0) + 8, y: sy(0) - 10 }, svg).textContent = "Bodega (0, 0)";
     Fis.svg("text", { class: "etq", x: sx(350) - 8, y: sy(300) - 12, "text-anchor": "end" }, svg).textContent = "Entrega (350, 300)";
     Fis.svg("circle", { cx: sx(350), cy: sy(300), r: 4, fill: "var(--tinta)" }, svg);
-    puntoMapa = Fis.svg("circle", { r: 7, fill: "var(--acento)", class: "anillo" }, svg);
+    // Vectores v y a, y encima el dron visto desde arriba
+    flechaV = Fis.flecha(svg, "flecha-tinta");
+    flechaA = Fis.flecha(svg);
+    etqV = Fis.svg("text", { class: "etq" }, svg);
+    etqV.textContent = "v";
+    etqA = Fis.svg("text", { class: "etq" }, svg);
+    etqA.textContent = "a";
+    puntoMapa = Fis.svg("g", {}, svg);
+    Fis.svg("path", { d: "M-8 -8 L8 8 M-8 8 L8 -8", stroke: "var(--tinta)", "stroke-width": 2 }, puntoMapa);
+    [[-8, -8], [8, -8], [-8, 8], [8, 8]].forEach(([x, y]) =>
+      Fis.svg("circle", { cx: x, cy: y, r: 4.5, fill: "var(--superficie)", stroke: "var(--tinta)", "stroke-width": 1.5 }, puntoMapa));
+    Fis.svg("rect", { x: -5, y: -4, width: 10, height: 8, rx: 2, fill: "var(--acento)" }, puntoMapa);
+    Fis.svg("circle", { cx: 3, cy: 0, r: 1.6, fill: "var(--fondo)" }, puntoMapa); // la cámara marca el frente
+  }
+
+  function etiquetar(el, x, y, largo) {
+    el.style.display = largo < 6 ? "none" : "";
+    el.setAttribute("x", x + 6);
+    el.setAttribute("y", y - 6);
   }
 
   function fijar(t) {
     tActual = t;
     const r = enT(t);
     cursores.forEach((c) => { c.linea.setAttribute("x1", c.sx(r.t)); c.linea.setAttribute("x2", c.sx(r.t)); });
-    puntoMapa.setAttribute("cx", escalaMapa.sx(r.x));
-    puntoMapa.setAttribute("cy", escalaMapa.sy(r.y));
+    const px = escalaMapa.sx(r.x), py = escalaMapa.sy(r.y);
+    // El dron mira hacia donde se mueve; quieto, conserva el último rumbo
+    if (Math.hypot(r.vx, r.vy) > 0.2) rumbo = (Math.atan2(-r.vy, r.vx) * 180) / Math.PI;
+    puntoMapa.setAttribute("transform", `translate(${px},${py}) rotate(${rumbo})`);
+    // Escala de las flechas: 1 m/s = 4 px y 1 m/s² = 14 px (en pantalla, y crece hacia abajo)
+    flechaV.poner(px, py, r.vx * 4, -r.vy * 4);
+    flechaA.poner(px, py, r.ax * 14, -r.ay * 14);
+    etiquetar(etqV, px + r.vx * 4, py - r.vy * 4, Math.hypot(r.vx, r.vy) * 4);
+    etiquetar(etqA, px + r.ax * 14, py - r.ay * 14, Math.hypot(r.ax, r.ay) * 14);
     document.getElementById("dron-lectura").innerHTML =
       `<span>t = ${Fis.n(r.t, 1)} s</span><span>r = (${Fis.n(r.x, 1)}; ${Fis.n(r.y, 1)}) m</span>` +
       `<span>v = (${Fis.n(r.vx, 1)}; ${Fis.n(r.vy, 1)}) m/s</span>` +
@@ -141,6 +167,31 @@
     PANELES.forEach(dibujarPanel);
     fijar(tActual);
   }
+  // Botón para ver el vuelo completo: los 70 s de la ruta en 7 s
+  const boton = document.getElementById("dron-volar");
+  let vuelo = 0, pausadoEn = null;
+  function detener(pausa) {
+    cancelAnimationFrame(vuelo);
+    vuelo = 0;
+    pausadoEn = pausa && tActual < T_MAX - 0.05 ? tActual : null;
+    boton.textContent = pausadoEn !== null ? "▶ Seguir volando" : tActual >= T_MAX - 0.05 ? "↻ Volar otra vez" : "▶ Volar la ruta";
+  }
+  boton.addEventListener("click", () => {
+    if (vuelo) return detener(true);
+    const desde = pausadoEn ?? 0;
+    pausadoEn = null;
+    boton.textContent = "❚❚ Pausa";
+    let inicio;
+    const paso = (ahora) => {
+      inicio ??= ahora;
+      const t = Math.min(T_MAX, desde + ((ahora - inicio) / 1000) * 10);
+      fijar(t);
+      if (t < T_MAX) vuelo = requestAnimationFrame(paso);
+      else detener(false);
+    };
+    vuelo = requestAnimationFrame(paso);
+  });
+
   tabla();
   todo();
   let espera;

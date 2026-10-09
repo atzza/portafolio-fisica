@@ -92,6 +92,10 @@
           <span style="--c:var(--serie-1)">Componente x (este)</span>
           <span style="--c:var(--serie-2)">Componente y (norte)</span>
         </div>
+        <div class="botones">
+          <button class="principal" id="dron-volar" type="button">▶ Volar la ruta</button>
+          <span class="casilla">10 veces más rápido que el vuelo real</span>
+        </div>
         <div class="lectura" id="dron-lectura" aria-live="polite"></div>
         <div class="graficas">
           <div>
@@ -107,7 +111,7 @@
             <div id="graf-ace" data-titulo="Aceleración en x e y contra el tiempo"></div>
           </div>
         </div>
-        <p class="nota">Pasá el cursor (o el dedo) sobre las gráficas para leer los vectores en cada instante. Fuente de los datos: generados por mí con las ecuaciones de arriba, en pasos de 0,1 s, a partir de esta ruta declarada: el dron sale del reposo en la bodega (0, 0), acelera 2 m/s² hacia el este durante 5 s, vuela a 10 m/s durante 30 s, gira en 5 s (aₓ = −2 m/s², aᵧ = +2 m/s²), vuela 25 s hacia el norte a 10 m/s y frena en 5 s sobre el punto de entrega (350, 300) m.</p>
+        <p class="nota">Pasá el cursor (o el dedo) sobre las gráficas para leer los vectores en cada instante, o tocá «Volar la ruta». En el mapa, la flecha blanca es la velocidad v y la de color es la aceleración a: en el giro, a apunta hacia el noroeste. Fuente de los datos: generados por mí con las ecuaciones de arriba, en pasos de 0,1 s, a partir de esta ruta declarada: el dron sale del reposo en la bodega (0, 0), acelera 2 m/s² hacia el este durante 5 s, vuela a 10 m/s durante 30 s, gira en 5 s (aₓ = −2 m/s², aᵧ = +2 m/s²), vuela 25 s hacia el norte a 10 m/s y frena en 5 s sobre el punto de entrega (350, 300) m.</p>
         <details>
           <summary>Ver los datos en tabla (cada 5 s)</summary>
           <div class="tabla-scroll">

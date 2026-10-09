@@ -227,10 +227,10 @@ button.principal { background: var(--acento); color: var(--fondo); border-color:
 .escena .l-acento { stroke: var(--acento); }
 .escena .l-regla { stroke: var(--regla); }
 .escena .l-fondo { stroke: var(--fondo); }
-.escena .flecha line { stroke: var(--acento); }
-.escena .flecha path { fill: var(--acento); }
-.escena .flecha-tinta line { stroke: var(--tinta); }
-.escena .flecha-tinta path { fill: var(--tinta); }
+svg .flecha line { stroke: var(--acento); }
+svg .flecha path { fill: var(--acento); }
+svg .flecha-tinta line { stroke: var(--tinta); }
+svg .flecha-tinta path { fill: var(--tinta); }
 .escena__repetir {
   position: absolute; top: 0; right: 0; font: 500 12px/1 var(--f-dato); padding: 7px 11px;
   color: var(--tinta-2); border-color: var(--regla); opacity: 0; transition: opacity .3s;
