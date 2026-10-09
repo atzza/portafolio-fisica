@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:wght@400;600;700&family=Unbounded:wght@700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
+  <script>
+    // Si el sistema no pide reducir el movimiento, los títulos esperan a su animación de entrada
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("entradas");
+      // Respaldo: si entradas.js no carga, todo se muestra igual
+      setTimeout(() => { if (typeof Entradas === "undefined") document.documentElement.classList.remove("entradas"); }, 3000);
+    }
+  </script>
 </head>
 <body>
 
@@ -496,6 +504,7 @@
 </footer>
 
 <script src="js/base.js"></script>
+<script src="js/entradas.js"></script>
 <script src="js/tema1-dron.js"></script>
 <script src="js/tema2-salto.js"></script>
 <script src="js/tema4-llantas.js"></script>

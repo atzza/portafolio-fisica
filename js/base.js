@@ -14,6 +14,8 @@
       a.setAttribute("aria-current", actual ? "true" : "false");
       if (actual) a.scrollIntoView({ block: "nearest", inline: "center" });
     });
+    // Aviso para las animaciones de entrada (entradas.js)
+    document.dispatchEvent(new CustomEvent("mundo", { detail: seccion }));
   }
 
   // Un tema se considera "actual" cuando cruza la franja central de la pantalla

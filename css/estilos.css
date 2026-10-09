@@ -210,3 +210,56 @@ button.principal { background: var(--acento); color: var(--fondo); border-color:
 .analisis { display: grid; gap: 12px; max-width: 68ch; }
 .analisis p { margin: 0; }
 .instante { font: 500 14px/1.4 var(--f-dato); color: var(--acento); }
+
+/* ---------- Entradas animadas (entradas.js) ---------- */
+.escena { position: relative; height: 240px; margin-bottom: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.escena svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.escena text { font-size: 12px; }
+.escena .hud { fill: var(--tinta); }
+.escena .e-tinta { fill: var(--tinta); }
+.escena .e-tinta-2 { fill: var(--tinta-2); }
+.escena .e-acento { fill: var(--acento); }
+.escena .e-fondo { fill: var(--fondo); }
+.escena .e-sup { fill: var(--superficie); }
+.escena .e-regla { fill: var(--regla); }
+.escena .l-tinta { stroke: var(--tinta); }
+.escena .l-2 { stroke: var(--tinta-2); }
+.escena .l-acento { stroke: var(--acento); }
+.escena .l-regla { stroke: var(--regla); }
+.escena .l-fondo { stroke: var(--fondo); }
+.escena .flecha line { stroke: var(--acento); }
+.escena .flecha path { fill: var(--acento); }
+.escena .flecha-tinta line { stroke: var(--tinta); }
+.escena .flecha-tinta path { fill: var(--tinta); }
+.escena__repetir {
+  position: absolute; top: 0; right: 0; font: 500 12px/1 var(--f-dato); padding: 7px 11px;
+  color: var(--tinta-2); border-color: var(--regla); opacity: 0; transition: opacity .3s;
+}
+.escena:hover .escena__repetir, .escena.terminada .escena__repetir, .escena__repetir:focus-visible { opacity: 1; }
+/* Giro continuo del hábitat del tema 3 (30 s por vuelta = 2 rpm) */
+.esc-gira { transform-box: fill-box; transform-origin: center; animation: girar-antihorario 30s linear infinite; }
+.escena:not(.visible) .esc-gira { animation-play-state: paused; }
+@keyframes girar-antihorario { to { transform: rotate(-360deg); } }
+
+/* El título de cada tema espera a su animación de entrada */
+.tema__cabeza > :not(.escena) { transition: opacity .45s ease, transform .7s cubic-bezier(.2, 1.5, .4, 1); }
+.tema__cabeza > h2 { transition-delay: .06s; }
+.tema__cabeza > .tema__concepto { transition-delay: .14s; }
+html.entradas .tema:not(.revelado) .tema__cabeza > :not(.escena) { opacity: 0; transform: translateY(26px); }
+
+/* Portada: las palabras del título caen con gravedad */
+.palabra { display: inline-block; }
+.pelota {
+  display: inline-block; width: .2em; height: .2em; margin-left: .06em; border-radius: 50%;
+  background: conic-gradient(#5ef2c8 0 20%, #ffd23f 0 40%, #ffb454 0 60%, #ff6a45 0 80%, #2447e6 0);
+}
+.portada.lista h1 { cursor: pointer; }
+html.entradas .portada:not(.lista) h1 { visibility: hidden; }
+
+@media (max-width: 760px) {
+  .escena { height: 190px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esc-gira { animation: none; }
+  .tema__cabeza > :not(.escena) { transition: none; }
+}
