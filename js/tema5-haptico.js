@@ -35,7 +35,7 @@
     let pts = "";
     for (let x = 0; x <= X_MAX + 1e-9; x += 0.05) pts += sx(x).toFixed(1) + "," + sy(fuerza(x)).toFixed(1) + " ";
     Fis.svg("polyline", { class: "linea s1", points: pts }, svg);
-    Fis.svg("text", { class: "etq", x: sx(4.1) - 10, y: sy(fuerza(4.1)) - 10, "text-anchor": "end" }, svg).textContent = "F = k·(x − x₀)";
+    Fis.svg("text", { class: "etq", x: sx(4.1) - 10, y: sy(fuerza(4.1)) - 10, "text-anchor": "end" }, svg).textContent = "F = kᵣ·x + k·(x − x₀)";
   }
   dibujar();
   let espera;
