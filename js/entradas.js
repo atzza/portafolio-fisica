@@ -159,6 +159,86 @@ const Entradas = (function () {
     };
   };
 
+  // ---------- Tema 2: un personaje de videojuego salta un hueco con la gravedad del juego ----------
+  ESCENAS.salto = function (svg, W, H) {
+    const M = H < 220 ? 24 : 40;                     // pixeles por metro: el personaje mide 1 m
+    const G = 32.65 * M, V0 = 11.43 * M, VX = 4 * M; // el salto de diseño del tema: 2 m en 0,35 s
+    const TAIRE = (2 * V0) / G, CORRE = 1.0, DESPUES = 0.55;
+    const piso = H - 30;
+    const xSalto = Math.round(W * (W < 560 ? 0.36 : 0.42)), x0 = xSalto - VX * CORRE;
+    const alcance = VX * TAIRE;
+    const hueco = [xSalto + 0.6 * M, xSalto + alcance - 0.6 * M];
+    const altura = (τ) => V0 * τ - 0.5 * G * τ * τ;  // y = v₀·t − ½·g·t²
+
+    // Nubes de pixeles
+    [[W * 0.56, 44], [W * 0.82, 74]].forEach(([x, y]) => {
+      const n = S("g", { class: "e-regla", transform: `translate(${Math.round(x)},${y})` }, svg);
+      [[0, 10, 56, 12], [10, 2, 22, 10], [28, 5, 18, 7]].forEach(([a, b, c, d]) => S("rect", { x: a, y: b, width: c, height: d }, n));
+    });
+    // Suelo de ladrillos con un hueco
+    [[0, hueco[0]], [hueco[1], W]].forEach(([a, b]) => {
+      S("rect", { class: "e-regla", x: a, y: piso, width: b - a, height: 22 }, svg);
+      let d = `M${a} ${piso + 11} H${b}`;
+      for (let x = a + M; x < b; x += M) d += ` M${x} ${piso} v11`;
+      for (let x = a + M / 2; x < b; x += M) d += ` M${x} ${piso + 11} v11`;
+      S("path", { class: "l-fondo", d, "stroke-width": 1.5 }, svg);
+      S("line", { class: "l-acento", x1: a, x2: b, y1: piso, y2: piso, "stroke-width": 3 }, svg);
+    });
+    // Marca de la altura máxima
+    const cima = S("g", {}, svg);
+    S("line", { class: "l-2", x1: xSalto + alcance / 2 - 28, x2: xSalto + alcance / 2 + 28, y1: piso - 2 * M, y2: piso - 2 * M, "stroke-dasharray": "3 3" }, cima);
+    S("text", { x: xSalto + alcance / 2 + 34, y: piso - 2 * M + 4 }, cima).textContent = "h = 2,00 m";
+
+    // Puntos de la trayectoria de los pies cada 0,05 s, como en la simulación del tema
+    const puntos = [];
+    for (let s = 0; s <= TAIRE; s += 0.05) puntos.push({ s, c: S("circle", { class: "e-tinta-2", cx: xSalto + VX * s, cy: piso - altura(s), r: 2.5 }, svg) });
+    // Monedas sobre la trayectoria
+    const monedas = [0.3, 0.5, 0.7].map((f) => {
+      const s = f * TAIRE, g = S("g", {}, svg);
+      S("ellipse", { class: "e-acento", rx: 0.2 * M, ry: 0.3 * M }, g);
+      S("rect", { class: "e-fondo", x: -0.04 * M, y: -0.17 * M, width: 0.08 * M, height: 0.34 * M }, g);
+      return { s, g, x: xSalto + VX * s, y: piso - altura(s) - M / 2 };
+    });
+    // Personaje: el mismo bloque de 1 m de la simulación
+    const pj = S("g", {}, svg), cuerpo = S("g", {}, pj);
+    S("rect", { class: "e-acento", x: -0.35 * M, y: -M, width: 0.7 * M, height: M, rx: 0.12 * M }, cuerpo);
+    S("circle", { class: "e-fondo", cx: 0.02 * M, cy: -0.68 * M, r: 0.07 * M }, cuerpo);
+    S("circle", { class: "e-fondo", cx: 0.22 * M, cy: -0.68 * M, r: 0.07 * M }, cuerpo);
+    const [hud1, hud2] = hud(svg, 2);
+    hud1.textContent = "Physics.gravity.y = −32,65 m/s²";
+
+    return {
+      dur: CORRE + TAIRE + DESPUES,
+      impacto: CORRE + TAIRE,
+      cuadro(t) {
+        const τ = t - CORRE;
+        let x, y, sx = 1, sy = 1;
+        if (τ < 0) { x = x0 + VX * t; y = t > 0 ? Math.abs(Math.sin(t * 18)) * 2 : 0; }
+        else if (τ < TAIRE) {
+          x = xSalto + VX * τ; y = altura(τ);
+          sy = 1 + 0.12 * ((V0 - G * τ) / V0); sx = 1 / sy;   // se estira al subir y se aplasta al bajar
+        } else {
+          const d = τ - TAIRE;
+          x = xSalto + alcance + VX * Math.min(d, DESPUES); y = 0;
+          if (d < 0.12) { sy = 0.78 + 0.22 * (d / 0.12); sx = 1 / sy; }  // aterrizaje
+          else if (d < DESPUES) y = Math.abs(Math.sin(d * 18)) * 2;
+        }
+        pj.setAttribute("transform", `translate(${x},${piso - y})`);
+        cuerpo.setAttribute("transform", `scale(${sx},${sy})`);
+        puntos.forEach((p) => (p.c.style.display = τ >= p.s ? "" : "none"));
+        monedas.forEach((m) => {
+          const d = τ - m.s;
+          m.g.setAttribute("transform", `translate(${m.x},${m.y - (d > 0 ? d * 90 : 0)})`);
+          m.g.style.opacity = d > 0 ? Math.max(0, 1 - d / 0.25) : 1;
+        });
+        cima.style.display = τ >= TAIRE / 2 ? "" : "none";
+        hud2.textContent = τ < 0 ? "y = 0,00 m (en el piso)"
+          : τ < TAIRE ? `y = ${Fis.n(y / M)} m · t = ${Fis.n(τ)} s`
+          : `aterrizó: ${Fis.n(TAIRE)} s en el aire`;
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,
