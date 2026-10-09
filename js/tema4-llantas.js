@@ -19,6 +19,7 @@
     { c: "C5 (más blando)", lo: 85, hi: 115 },
   ];
 
+  let sel = 2; // medición escogida: al inicio, la de más carga
   function carga() {
     const caja = document.getElementById("graf-carga");
     caja.innerHTML = "";
@@ -37,19 +38,35 @@
     // Modelo simple: Fy = μ·Fz con μ fijo
     Fis.svg("line", { class: "linea s2", "stroke-dasharray": "6 5", x1: sx(Y0 / MU_SIMPLE), y1: sy(Y0), x2: sx(X1), y2: sy(X1 * MU_SIMPLE) }, svg);
     Fis.svg("text", { class: "etq", x: sx(6.9), y: sy(6.9 * MU_SIMPLE) - 14, "text-anchor": "end" }, svg).textContent = "Modelo simple (μ fijo)";
-    // Diferencia en la carga más alta
-    const u = MEDIDO[2], falta = (1 - u.mu / MU_SIMPLE) * 100;
-    Fis.svg("line", { class: "cursor", x1: sx(u.fz), x2: sx(u.fz), y1: sy(u.fz * MU_SIMPLE), y2: sy(u.fy) }, svg);
+    // Diferencia en la medición escogida
+    const u = MEDIDO[sel], falta = (1 - u.mu / MU_SIMPLE) * 100;
+    if (sel > 0) Fis.svg("line", { class: "cursor", x1: sx(u.fz), x2: sx(u.fz), y1: sy(u.fz * MU_SIMPLE), y2: sy(u.fy) }, svg);
     // Datos medidos
     Fis.svg("polyline", { class: "linea s1", points: MEDIDO.map((d) => sx(d.fz) + "," + sy(d.fy)).join(" ") }, svg);
-    MEDIDO.forEach((d) => {
-      const c = Fis.svg("circle", { class: "f1 anillo", cx: sx(d.fz), cy: sy(d.fy), r: 6 }, svg);
-      Fis.svg("title", {}, c).textContent = `Fz = ${Fis.n(d.fz)} kN, Fy máx = ${Fis.n(d.fy)} kN, μ = ${Fis.n(d.mu)}`;
-    });
-    Fis.svg("text", { class: "etq", x: sx(u.fz) + 8, y: sy(u.fz * MU_SIMPLE) - 12, "text-anchor": "end" }, svg).textContent = `${Fis.n(falta, 1)} % menos que el modelo`;
+    MEDIDO.forEach((d, i) => Fis.svg("circle", { class: "f1 anillo", cx: sx(d.fz), cy: sy(d.fy), r: i === sel ? 8 : 6 }, svg));
+    if (sel > 0) {
+      Fis.svg("text", { class: "etq", x: sx(u.fz) + 8, y: sy(u.fz * MU_SIMPLE) - 12, "text-anchor": "end" }, svg).textContent = `${Fis.n(falta, 1)} % menos que el modelo`;
+    } else {
+      Fis.svg("text", { class: "etq", x: sx(u.fz) + 12, y: sy(u.fy) + 22 }, svg).textContent = "aquí el modelo y la medición coinciden";
+    }
+    document.getElementById("llanta-lectura").innerHTML =
+      `<span>F<sub>z</sub> = ${Fis.n(u.fz)} kN (${u.lbf} lbf)</span><span>μ medido = ${Fis.n(u.mu)}</span>` +
+      `<span>F<sub>y,máx</sub> medido = ${Fis.n(u.fy)} kN</span><span>con μ fijo = ${Fis.n(u.fz * MU_SIMPLE)} kN</span>`;
+    // Zona sensible: escoge la medición más cercana al cursor o al dedo
+    const zona = Fis.svg("rect", { x: m.i, y: 0, width: W - m.i - m.d, height: H, fill: "transparent" }, svg);
+    const escoger = (ev) => {
+      const x = ev.clientX - svg.getBoundingClientRect().left;
+      let mejor = 0;
+      MEDIDO.forEach((d, i) => { if (Math.abs(sx(d.fz) - x) < Math.abs(sx(MEDIDO[mejor].fz) - x)) mejor = i; });
+      if (mejor !== sel) { sel = mejor; carga(); }
+    };
+    zona.addEventListener("pointermove", escoger);
+    zona.addEventListener("pointerdown", escoger);
   }
 
+  const control = document.getElementById("llanta-temp");
   function ventanas() {
+    const T = +control.value;
     const caja = document.getElementById("graf-ventanas");
     caja.innerHTML = "";
     const W = caja.clientWidth, fila = 34, m = { i: 112, d: 16, s: 8, b: 40 };
@@ -62,14 +79,31 @@
     }
     Fis.svg("text", { x: (m.i + W - m.d) / 2, y: H - 4, "text-anchor": "middle" }, svg).textContent = "Temperatura de la banda de rodadura (°C)";
     VENTANAS.forEach((v, i) => {
-      const y = m.s + i * fila + 8;
+      const y = m.s + i * fila + 8, dentro = T >= v.lo && T <= v.hi;
       Fis.svg("text", { class: "etq", x: m.i - 10, y: y + 13, "text-anchor": "end" }, svg).textContent = v.c;
-      const r = Fis.svg("rect", { class: "f1", x: sx(v.lo), y, width: sx(v.hi) - sx(v.lo), height: 18, rx: 4 }, svg);
+      const r = Fis.svg("rect", { class: "f1", x: sx(v.lo), y, width: sx(v.hi) - sx(v.lo), height: 18, rx: 4, opacity: dentro ? 1 : 0.3 }, svg);
       Fis.svg("title", {}, r).textContent = `${v.c}: de ${v.lo} a ${v.hi} °C`;
       Fis.svg("text", { x: sx(v.lo) - 6, y: y + 13, "text-anchor": "end" }, svg).textContent = v.lo;
       Fis.svg("text", { x: sx(v.hi) + 6, y: y + 13 }, svg).textContent = v.hi;
     });
+    // Temperatura escogida
+    Fis.svg("line", { class: "cursor", x1: sx(T), x2: sx(T), y1: m.s - 4, y2: H - m.b }, svg);
+    const zona = Fis.svg("rect", { x: m.i, y: 0, width: W - m.i - m.d, height: H - m.b, fill: "transparent" }, svg);
+    const mover = (ev) => {
+      const x = ev.clientX - svg.getBoundingClientRect().left;
+      const t = Math.round(80 + ((x - m.i) / (W - m.i - m.d)) * 65);
+      const nuevo = Math.max(80, Math.min(140, t));
+      if (nuevo !== +control.value) { control.value = nuevo; ventanas(); }
+    };
+    zona.addEventListener("pointermove", mover);
+    zona.addEventListener("pointerdown", mover);
+    const ok = VENTANAS.filter((v) => T >= v.lo && T <= v.hi).map((v) => v.c.split(" ")[0]);
+    document.getElementById("llanta-temp-valor").textContent = `${T} °C`;
+    document.getElementById("ventana-lectura").textContent = ok.length
+      ? `A ${T} °C trabajan en su ventana: ${ok.join(", ")}`
+      : `A ${T} °C ningún compuesto está en su ventana`;
   }
+  control.addEventListener("input", ventanas);
 
   // Tabla con los mismos datos de la gráfica de carga
   const cuerpo = document.querySelector("#llanta-tabla tbody");

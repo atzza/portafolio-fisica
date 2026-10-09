@@ -407,13 +407,19 @@
               <span style="--c:var(--serie-2)">Modelo simple, μ = 1,10 fijo</span>
             </div>
             <div id="graf-carga" data-titulo="Fuerza lateral máxima contra carga vertical: la llanta real queda por debajo del modelo de coeficiente fijo"></div>
+            <div class="lectura" id="llanta-lectura" aria-live="polite"></div>
           </div>
           <div>
             <p class="graf-titulo">Ventana de trabajo de cada compuesto de F1</p>
             <div id="graf-ventanas" data-titulo="Rango de temperatura de trabajo de los compuestos Pirelli C1 a C5"></div>
+            <div class="control">
+              <label for="llanta-temp">Temperatura de la llanta <output id="llanta-temp-valor" for="llanta-temp"></output></label>
+              <input type="range" id="llanta-temp" min="80" max="140" step="1" value="100">
+            </div>
+            <div class="lectura" id="ventana-lectura" aria-live="polite"></div>
           </div>
         </div>
-        <p class="nota">Fuente de la gráfica de carga: Milliken y Milliken, <em>Race Car Vehicle Dynamics</em>, figura 2.9, datos reproducidos en el artículo «Tire load sensitivity» de Wikipedia. Convertí la carga de libras-fuerza a newtons (1 lbf = 4,448 N) y calculé F<sub>y,máx</sub> = μ·F<sub>z</sub>. La línea punteada la calculé yo dejando fijo el coeficiente de la carga más baja. Fuente de las ventanas de temperatura: comunicado de prensa de Pirelli del 18 de febrero de 2019.</p>
+        <p class="nota">Pasá el cursor (o el dedo) por la primera gráfica para leer cada medición, y mové la temperatura para ver qué compuestos trabajan en su ventana. Fuente de la gráfica de carga: Milliken y Milliken, <em>Race Car Vehicle Dynamics</em>, figura 2.9, datos reproducidos en el artículo «Tire load sensitivity» de Wikipedia. Convertí la carga de libras-fuerza a newtons (1 lbf = 4,448 N) y calculé F<sub>y,máx</sub> = μ·F<sub>z</sub>. La línea punteada la calculé yo dejando fijo el coeficiente de la carga más baja. Fuente de las ventanas de temperatura: comunicado de prensa de Pirelli del 18 de febrero de 2019.</p>
         <details>
           <summary>Ver los datos de carga en tabla</summary>
           <div class="tabla-scroll">
