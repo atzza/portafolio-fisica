@@ -63,6 +63,102 @@ const Entradas = (function () {
   // cuadro(t) dibuja el instante t; en "impacto" aparece el título del tema.
   const ESCENAS = {};
 
+  // ---------- Tema 1: el dron despega, vuela al este, baja y suelta el paquete ----------
+  ESCENAS.dron = function (svg, W, H) {
+    const piso = H - 24;
+    const k = W >= 700 ? 1.35 : 1;                    // tamaño del dron y del paquete
+    const xB = 58, xE = W - Math.min(170, W * 0.32); // bodega y punto de entrega
+    const y0 = piso - 48 - 27 * k;                    // posado sobre el techo de la bodega
+    const yC = Math.round(H * 0.3);                   // altura de crucero
+    const yD = piso - 44 - 27 * k;                    // suelta el paquete a 44 px del suelo
+    // Tramo horizontal con aceleración constante: acelera, crucero y frena (como la ruta del tema)
+    const D = xE - xB, TV = 1.5, TA = 0.45, VMAX = D / (TV - TA), A = VMAX / TA;
+    const xVuelo = (τ) => τ <= 0 ? 0 : τ < TA ? 0.5 * A * τ * τ : τ < TV - TA ? 0.5 * A * TA * TA + VMAX * (τ - TA) : τ < TV ? D - 0.5 * A * (TV - τ) ** 2 : D;
+    const vxVuelo = (τ) => τ <= 0 || τ >= TV ? 0 : τ < TA ? A * τ : τ < TV - TA ? VMAX : A * (TV - τ);
+    const G = 1400, SOLTAR = 2.45, IMPACTO = SOLTAR + Math.sqrt((2 * 44) / G);
+
+    function estado(t) {
+      if (t < 0.5) return { x: xB, y: tramo(y0, yC, t, 0.5), vx: 0, vy: vTramo(y0, yC, t, 0.5), inclina: 0, fase: "Despega" };
+      if (t < 0.5 + TV) {
+        const τ = t - 0.5;
+        const fase = τ < TA ? "Acelera hacia el este" : τ < TV - TA ? "Crucero a 10 m/s" : "Frena sobre la entrega";
+        return { x: xB + xVuelo(τ), y: yC, vx: vxVuelo(τ), vy: 0, inclina: τ < TA ? 9 : τ < TV - TA ? 0 : -9, fase };
+      }
+      if (t < SOLTAR) return { x: xE, y: tramo(yC, yD, t - 2, 0.45), vx: 0, vy: vTramo(yC, yD, t - 2, 0.45), inclina: 0, fase: "Baja" };
+      return { x: xE, y: tramo(yD, yD - 26, t - SOLTAR, 0.65), vx: 0, vy: vTramo(yD, yD - 26, t - SOLTAR, 0.65), inclina: 0, fase: t < IMPACTO ? "Suelta el paquete" : "¡Entregado!" };
+    }
+
+    // Suelo, bodega y casa de entrega
+    S("line", { class: "l-2", x1: 0, x2: W, y1: piso, y2: piso, "stroke-width": 1.5 }, svg);
+    S("rect", { class: "e-sup l-2", x: xB - 34, y: piso - 48, width: 68, height: 48, "stroke-width": 1.5 }, svg);
+    S("rect", { class: "e-regla", x: xB - 14, y: piso - 28, width: 28, height: 28 }, svg);
+    S("path", { class: "l-2", d: `M${xB - 14} ${piso - 21} h28 M${xB - 14} ${piso - 14} h28 M${xB - 14} ${piso - 7} h28`, "stroke-width": 1 }, svg);
+    S("text", { x: xB, y: piso + 17, "text-anchor": "middle" }, svg).textContent = "Bodega";
+    const xC = xE + 32;
+    S("rect", { class: "e-sup l-2", x: xC, y: piso - 34, width: 44, height: 34, "stroke-width": 1.5 }, svg);
+    S("path", { class: "e-regla l-2", d: `M${xC - 5} ${piso - 34} L${xC + 22} ${piso - 54} L${xC + 49} ${piso - 34} Z`, "stroke-width": 1.5 }, svg);
+    S("rect", { class: "e-acento", x: xC + 8, y: piso - 25, width: 10, height: 9 }, svg);
+    S("rect", { class: "e-regla", x: xC + 26, y: piso - 18, width: 10, height: 18 }, svg);
+    S("ellipse", { class: "l-acento", cx: xE, cy: piso, rx: 17, ry: 4, fill: "none", "stroke-width": 1.5, "stroke-dasharray": "4 3" }, svg);
+    S("text", { x: xE, y: piso + 17, "text-anchor": "middle" }, svg).textContent = "Entrega";
+
+    const estela = S("polyline", { class: "l-2", fill: "none", "stroke-width": 1.2, "stroke-dasharray": "2 5" }, svg);
+    const [hud1, hud2] = hud(svg, 2);
+
+    // Paquete (va aparte porque cae solo)
+    const paquete = S("g", {}, svg);
+    S("rect", { class: "e-acento", x: -8, y: 0, width: 16, height: 13, rx: 2 }, paquete);
+    S("line", { class: "l-fondo", x1: 0, x2: 0, y1: 0, y2: 13, "stroke-width": 1.5 }, paquete);
+    const polvo = S("path", { class: "l-2", fill: "none", "stroke-width": 1.5, "stroke-linecap": "round",
+      d: `M${xE - 12} ${piso - 2} l-7 -3 M${xE - 12} ${piso - 6} l-5 -6 M${xE + 12} ${piso - 2} l7 -3 M${xE + 12} ${piso - 6} l5 -6` }, svg);
+
+    // Dron visto de lado
+    const dron = S("g", {}, svg);
+    const cuerpo = S("g", {}, dron);
+    const cuerda = S("line", { class: "l-2", x1: 0, x2: 0, y1: 4, y2: 14, "stroke-width": 1.2 }, cuerpo);
+    S("path", { class: "l-tinta", fill: "none", d: "M-24 -4 H24 M-22 -4 V-9 M22 -4 V-9", "stroke-width": 3, "stroke-linecap": "round" }, cuerpo);
+    S("path", { class: "l-tinta", fill: "none", d: "M-8 4 L-12 11 M8 4 L12 11", "stroke-width": 2, "stroke-linecap": "round" }, cuerpo);
+    const helices = [-22, 22].map((x) => S("ellipse", { class: "e-acento", cx: x, cy: -10, rx: 13, ry: 2.2 }, cuerpo));
+    S("rect", { class: "e-tinta", x: -13, y: -8, width: 26, height: 12, rx: 5 }, cuerpo);
+    S("circle", { class: "e-fondo", cx: 7, cy: -2, r: 2.4 }, cuerpo);
+    const vel = flecha(svg);
+    const etqV = S("text", { class: "hud" }, svg);
+    etqV.textContent = "v";
+
+    const ESCALA = 46 / VMAX; // pixeles de flecha por cada px/s
+    return {
+      dur: 3.1,
+      impacto: IMPACTO,
+      cuadro(t) {
+        const e = estado(t);
+        dron.setAttribute("transform", `translate(${e.x},${e.y}) scale(${k})`);
+        cuerpo.setAttribute("transform", `rotate(${e.inclina})`);
+        const girando = t > 0 && t < 3.1 && Math.floor(t * 60) % 2;
+        helices.forEach((h) => h.setAttribute("rx", girando ? 5 : 13));
+        // Vector velocidad
+        const dx = e.vx * ESCALA, dy = e.vy * ESCALA;
+        vel.poner(e.x, e.y, dx, dy);
+        const largo = Math.hypot(dx, dy);
+        etqV.style.display = largo < 6 ? "none" : "";
+        etqV.setAttribute("x", e.x + dx + (dx >= 0 ? 6 : -14));
+        etqV.setAttribute("y", e.y + dy + (dy > 0 ? 14 : -4));
+        // Estela: la posición en pasos de 0,05 s hasta ahora
+        const pts = [];
+        for (let s = 0; s <= t; s += 0.05) { const p = estado(s); pts.push(p.x.toFixed(1) + "," + p.y.toFixed(1)); }
+        estela.setAttribute("points", pts.join(" "));
+        // Paquete: colgado del dron hasta que lo suelta; luego cae con g y rebota un poco
+        cuerda.style.display = t < SOLTAR ? "" : "none";
+        const yP = t < SOLTAR ? e.y + 14 * k : piso - 13 * k - rebote(t - SOLTAR, 44, G, 0.3);
+        paquete.setAttribute("transform", `translate(${t < SOLTAR ? e.x : xE},${yP}) scale(${k})`);
+        polvo.style.opacity = t >= IMPACTO && t < IMPACTO + 0.35 ? 1 : 0;
+        // Datos
+        const rapidez = (Math.hypot(e.vx, e.vy) / VMAX) * 10;
+        hud1.textContent = e.fase;
+        hud2.textContent = `|v| = ${Fis.n(rapidez, 1)} m/s`;
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,
