@@ -62,11 +62,15 @@
       const c = posicion(v0, G_TIERRA, TT / 2);
       Fis.svg("text", { class: "etq", x: sx(c.x), y: sy(c.y) - 8, "text-anchor": "middle" }, svg).textContent = "g = 9,81";
     }
-    // Trayectoria del juego: un punto cada 0,05 s (puntos juntos = movimiento lento)
-    for (let t = 0; t <= T + 1e-9; t += 0.05) {
+    // Trayectoria del juego: un punto cada 0,05 s (puntos juntos = movimiento lento),
+    // más el punto del aterrizaje para que la curva llegue al suelo
+    const instantes = [];
+    for (let i = 0; i * 0.05 < T - 0.01; i++) instantes.push(i * 0.05);
+    instantes.push(T);
+    instantes.forEach((t) => {
       const p = posicion(v0, g, t);
-      Fis.svg("circle", { class: "punto", cx: sx(p.x), cy: sy(p.y), r: 3 }, svg);
-    }
+      Fis.svg("circle", { class: "punto", cx: sx(p.x), cy: sy(Math.max(0, p.y)), r: 3 }, svg);
+    });
     const c = posicion(v0, g, T / 2);
     if (!comparar || Math.abs(sy(c.y) - sy(hT)) > 22) {
       Fis.svg("text", { class: "etq", x: sx(c.x), y: sy(c.y) - 10, "text-anchor": "middle" }, svg).textContent = "g del juego";
