@@ -213,7 +213,7 @@ button.principal { background: var(--acento); color: var(--fondo); border-color:
 
 /* ---------- Entradas animadas (entradas.js) ---------- */
 .escena { position: relative; height: 240px; margin-bottom: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.escena svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.escena svg { position: absolute; left: 0; top: 0; overflow: hidden; }
 .escena text { font-size: 12px; }
 .escena .hud { fill: var(--tinta); }
 .escena .e-tinta { fill: var(--tinta); }

@@ -239,6 +239,64 @@ const Entradas = (function () {
     };
   };
 
+  // ---------- Tema 3: el hábitat llega girando entre estrellas y se estabiliza en 2 rpm ----------
+  ESCENAS.anillo = function (svg, W, H) {
+    const rad = Math.PI / 180;
+    // Estrellas pseudoaleatorias: siempre quedan en el mismo lugar
+    let semilla = 11;
+    const azar = () => (semilla = (semilla * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < W / 8; i++) {
+      S("circle", { class: "e-tinta", cx: azar() * W, cy: azar() * H, r: 0.5 + azar() * 1.1, opacity: 0.2 + azar() * 0.6 }, svg);
+    }
+    // Borde de un planeta con su atmósfera
+    S("circle", { class: "e-sup l-acento", cx: W * 0.12, cy: H + 854, r: 900, "stroke-width": 2, "stroke-opacity": 0.6 }, svg);
+
+    const R = Math.min(H * 0.34, 84), cx = W * 0.64, cy = H * 0.52;
+    const estacion = S("g", {}, svg);
+    // Sentido de giro: antihorario, como en el diagrama del tema
+    const ra = R + 14, a1 = -55 * rad, a2 = -125 * rad;
+    S("path", { class: "l-acento", fill: "none", "stroke-width": 2,
+      d: `M${ra * Math.cos(a1)} ${ra * Math.sin(a1)} A${ra} ${ra} 0 0 0 ${ra * Math.cos(a2)} ${ra * Math.sin(a2)}` }, estacion);
+    S("path", { class: "e-acento", d: "M0 0 L-9 -5 L-9 5 Z",
+      transform: `translate(${ra * Math.cos(a2)},${ra * Math.sin(a2)}) rotate(${Math.atan2(-Math.cos(a2), Math.sin(a2)) / rad})` }, estacion);
+    S("text", { class: "hud", x: 0, y: -ra - 8, "text-anchor": "middle" }, estacion).textContent = "ω";
+
+    // El anillo: "giro" es la entrada calculada aquí; "lento" es el giro continuo de 2 rpm (CSS)
+    const giro = S("g", {}, estacion);
+    const lento = S("g", { class: "esc-gira" }, giro);
+    S("circle", { class: "l-regla", r: 0.89 * R, fill: "none", "stroke-width": 0.22 * R }, lento);
+    S("circle", { class: "l-2", r: R, fill: "none", "stroke-width": 1.5 }, lento);
+    S("circle", { class: "l-2", r: 0.78 * R, fill: "none", "stroke-width": 1.5 }, lento);
+    [90, 210, 330].forEach((a) => S("line", { class: "l-2", "stroke-width": 3,
+      x1: 0.14 * R * Math.cos(a * rad), y1: 0.14 * R * Math.sin(a * rad), x2: 0.78 * R * Math.cos(a * rad), y2: 0.78 * R * Math.sin(a * rad) }, lento));
+    for (let i = 0; i < 18; i++) {
+      S("rect", { class: "e-acento", x: -3, y: -1.6, width: 6, height: 3.2, transform: `rotate(${i * 20}) translate(${0.89 * R},0) rotate(90)` }, lento);
+    }
+    S("circle", { class: "e-sup l-tinta", r: 0.14 * R, "stroke-width": 1.5 }, lento);
+    // Persona de pie sobre la cara interior, con la cabeza hacia el eje
+    const ri = 0.78 * R;
+    S("path", { class: "l-tinta", fill: "none", "stroke-width": 1.6, "stroke-linecap": "round",
+      d: `M0 ${ri - 9} V${ri - 4} L-3 ${ri} M0 ${ri - 4} L3 ${ri} M-3 ${ri - 7.5} H3` }, lento);
+    S("circle", { class: "l-tinta", fill: "none", "stroke-width": 1.6, cx: 0, cy: ri - 12, r: 2.6 }, lento);
+
+    const [hud1, hud2] = hud(svg, 2);
+    // Llega frenando (posición) y su giro extra decae exponencialmente hasta quedar en 2 rpm
+    const LLEGA = 1.3, TAU = 0.45, EXTRA = 300, xIni = W + R + 30;
+    return {
+      dur: 2.0,
+      impacto: 1.0,
+      cuadro(t) {
+        const u = Math.min(1, t / LLEGA);
+        estacion.setAttribute("transform", `translate(${xIni + (cx - xIni) * (1 - (1 - u) ** 3)},${cy})`);
+        const fin = t >= 2.0;
+        giro.setAttribute("transform", `rotate(${-EXTRA * (fin ? 1 : 1 - Math.exp(-t / TAU))})`);
+        const rpm = 2 + (fin ? 0 : (EXTRA / TAU) * Math.exp(-t / TAU) / 6); // 1 rpm = 6 °/s
+        hud1.textContent = `ω = ${Fis.n(rpm, 1)} rpm`;
+        hud2.textContent = `T = ${Fis.n(60 / rpm, 1)} s por vuelta`;
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,
