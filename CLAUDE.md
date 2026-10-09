@@ -26,13 +26,21 @@ Se publica en GitHub Pages. Entrega: sábado 10 de octubre de 2026, 11:59 PM. Es
   Los tokens (`--fondo`, `--superficie`, `--tinta`, `--tinta-2`, `--acento`, `--regla`) están
   registrados con `@property` para que el cambio de color se anime. Los colores de series de
   datos (`--serie-1`, `--serie-2`) se definen por tema en `#tema-N` y no cambian con el mundo.
-- `js/base.js`: detecta el tema en pantalla, cambia el mundo y marca el menú. Define el objeto
-  `Fis` con utilidades (`Fis.n` para números con coma decimal, `Fis.svg` para crear SVG).
-- `js/tema1-dron.js`: genera los datos de la ruta declarada y dibuja las gráficas.
+- `js/base.js`: detecta el tema en pantalla, cambia el mundo, marca el menú y avisa con el evento
+  `mundo`. Define el objeto `Fis` con utilidades (`Fis.n` para números con coma decimal,
+  `Fis.svg` para crear SVG, `Fis.flecha` para dibujar vectores).
+- `js/entradas.js`: animaciones de entrada. Cada tema tiene un `<div class="escena" data-escena="nombre">`
+  al inicio de `.tema__cabeza`; la escena (`ESCENAS.nombre`) se calcula con la física del tema y,
+  en su instante de "impacto", aparece el título. También hace caer las palabras de la portada.
+  Respeta "reducir movimiento" del sistema.
+- `js/tema1-dron.js`: genera los datos de la ruta declarada, dibuja las gráficas y el botón «Volar la ruta».
 - `js/tema2-salto.js`: simulación del salto.
-- `js/tema4-llantas.js`: gráficas con datos reales (Milliken vía Wikipedia, Pirelli 2019).
-- `js/tema5-haptico.js`: curva de fuerza contra desplazamiento (valores ilustrativos declarados).
-- El diagrama del tema 3 es SVG escrito a mano dentro de `index.html`.
+- `js/tema3-habitat.js`: botones de rpm del diagrama del tema 3 y giro en tiempo real de las marcas del anillo.
+- `js/tema4-llantas.js`: gráficas con datos reales (Milliken vía Wikipedia, Pirelli 2019), explorables.
+- `js/tema5-haptico.js`: curva de fuerza contra desplazamiento (valores ilustrativos declarados) y
+  el control «Apretá el gatillo» con el par de la tercera ley.
+- El diagrama del tema 3 es SVG escrito a mano dentro de `index.html`; el JS solo actualiza textos y marcas.
+- `_pruebas/` (si existe) es solo para pruebas locales y está excluida de git en `.git/info/exclude`.
 
 Sin frameworks ni paso de compilación: HTML, CSS y JavaScript puros. Se abre con doble clic.
 
@@ -43,6 +51,9 @@ Sin frameworks ni paso de compilación: HTML, CSS y JavaScript puros. Se abre co
 3. Copiar la estructura de una sección existente: cabeza, caso de uso (tres partes), concepto
    físico con `.ecuacion`, recurso de apoyo en `.recurso`, conexiones y fuentes.
 4. Si el recurso necesita código, crear `js/temaN-nombre.js` y cargarlo al final de `index.html`.
+5. Animación de entrada: agregar `<div class="escena" data-escena="nombre" data-titulo="...">` al inicio
+   de `.tema__cabeza` y la función `ESCENAS.nombre = function (svg, W, H) { return { dur, impacto, cuadro(t) } }`
+   en `js/entradas.js`. Sin escena, el título aparece de una vez.
 
 ## Convenciones
 
@@ -60,11 +71,12 @@ Sin frameworks ni paso de compilación: HTML, CSS y JavaScript puros. Se abre co
   fricción y llantas, resortes F = −kx.
 - Usar siempre esa notación. Cada tema tiene un párrafo en "Conexiones" que cita la semana.
 
-## Pendientes al 8 de octubre
+## Pendientes al 9 de octubre
 
 - Azarela debe ver el video del tema 5 y confirmar que el instante 9:19 muestra el mecanismo
   del gatillo; si no, corregir el minuto en el texto y en `?start=559` del iframe.
-- Abrir todos los enlaces de "Fuentes" y confirmar que cargan (el de PX4 y el de Unity se
-  escribieron sin verificar).
 - Publicar en GitHub Pages y entregar en Moodle la URL del sitio y la del repositorio.
-- Retoques de estilo que Azarela quiera.
+  El repo local ya existe con identidad propia (afernandezsi@ucenfotec.ac.cr), sin remoto todavía.
+- En celular, las cuatro cajas de ecuaciones del diagrama del tema 3 quedan a la derecha y hay
+  que deslizar dentro del recuadro para verlas.
+- Hecho el 8 de octubre: los 10 enlaces de "Fuentes" cargan (PX4 y Unity apuntan a la página correcta).

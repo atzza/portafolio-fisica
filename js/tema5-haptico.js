@@ -32,7 +32,8 @@
     Fis.svg("text", { x: (m.i + W - m.d) / 2, y: H - 6, "text-anchor": "middle" }, svg).textContent = "Desplazamiento del gatillo x (mm)";
     // Límites de las tres zonas
     [X0, X_TOPE].forEach((x) => Fis.svg("line", { class: "cursor", x1: sx(x), x2: sx(x), y1: m.s - 8, y2: sy(0) }, svg));
-    const zonas = [["Libre", X0 / 2], ["Resorte virtual", (X0 + X_TOPE) / 2], ["Límite del motor", (X_TOPE + X_MAX) / 2]];
+    const angosta = W < 500; // en celular, nombres cortos para que no se encimen
+    const zonas = [["Libre", X0 / 2], [angosta ? "Resorte" : "Resorte virtual", (X0 + X_TOPE) / 2], [angosta ? "Límite" : "Límite del motor", (X_TOPE + X_MAX) / 2]];
     zonas.forEach(([t, x]) => Fis.svg("text", { class: "etq", x: sx(x), y: m.s - 14, "text-anchor": "middle" }, svg).textContent = t);
     // Resorte ideal (ley de Hooke sin límite)
     Fis.svg("line", { class: "linea s2", "stroke-dasharray": "6 5", x1: sx(X_TOPE), y1: sy(F_MAX), x2: sx(X_MAX), y2: sy(K_RETORNO * X_MAX + K_VIRTUAL * (X_MAX - X0)) }, svg);
@@ -40,7 +41,7 @@
     let pts = "";
     for (let x = 0; x <= X_MAX + 1e-9; x += 0.05) pts += sx(x).toFixed(1) + "," + sy(fuerza(x)).toFixed(1) + " ";
     Fis.svg("polyline", { class: "linea s1", points: pts }, svg);
-    Fis.svg("text", { class: "etq", x: sx(4.3) + 10, y: sy(fuerza(4.3)) + 24 }, svg).textContent = "F = kᵣ·x + k·(x − x₀)";
+    Fis.svg("text", { class: "etq", x: angosta ? m.i + 8 : sx(4.3) + 10, y: angosta ? m.s + 14 : sy(fuerza(4.3)) + 24 }, svg).textContent = "F = kᵣ·x + k·(x − x₀)";
     // Punto del gatillo en este momento, con guías hasta los ejes
     const x = xActual(), f = fuerza(x);
     Fis.svg("path", { class: "cursor", fill: "none", d: `M${sx(x)} ${sy(0)} V${sy(f)} H${m.i}` }, svg);
