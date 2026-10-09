@@ -261,6 +261,14 @@
       <div class="recurso">
         <p class="recurso__tipo">Diagrama</p>
         <p class="recurso__titulo">Hábitat en forma de anillo, visto de frente</p>
+        <div class="botones" role="group" aria-label="Velocidad de giro del hábitat">
+          <span class="casilla">Velocidad de giro:</span>
+          <button type="button" data-rpm="1" aria-pressed="false">1 rpm</button>
+          <button type="button" data-rpm="2" aria-pressed="true">2 rpm</button>
+          <button type="button" data-rpm="4" aria-pressed="false">4 rpm</button>
+          <button type="button" data-rpm="6" aria-pressed="false">6 rpm</button>
+        </div>
+        <div class="lectura" id="habitat-lectura" aria-live="polite"></div>
         <div class="diagrama">
           <svg viewBox="0 0 760 460" role="img" aria-label="Diagrama de un hábitat giratorio en forma de anillo con el eje de giro en el centro, el radio r, la aceleración centrípeta apuntando al eje y la velocidad tangencial">
             <defs>
@@ -270,13 +278,15 @@
             <!-- anillo -->
             <circle cx="230" cy="235" r="180" class="casco"/>
             <circle cx="230" cy="235" r="158" class="hueco"/>
+            <!-- marcas que giran a la velocidad escogida (tema3-habitat.js) -->
+            <g id="habitat-marcas"></g>
             <!-- eje de giro -->
             <circle cx="230" cy="235" r="5" class="d-tinta"/>
             <text x="230" y="198" text-anchor="middle" class="d-tinta">Eje de giro</text>
             <text x="230" y="214" text-anchor="middle">(sale de la pantalla)</text>
             <!-- radio -->
             <line x1="236" y1="235" x2="386" y2="235" class="t-2" stroke-width="1.5" stroke-dasharray="5 4"/>
-            <text x="345" y="227" text-anchor="middle" class="d-ec">r</text>
+            <text id="habitat-r" x="312" y="256" text-anchor="middle" class="d-ec">r = 223,6 m</text>
             <!-- sentido de giro -->
             <path d="M291.2 46.7 A198 198 0 0 0 168.8 46.7" fill="none" class="t-tinta" stroke-width="2" marker-end="url(#fl-tinta)"/>
             <text x="230" y="26" text-anchor="middle" class="d-ec">ω</text>
@@ -293,7 +303,7 @@
             <text x="242" y="314">apunta al eje</text>
             <!-- velocidad tangencial -->
             <line x1="236" y1="432" x2="318" y2="432" class="t-tinta" stroke-width="2" marker-end="url(#fl-tinta)"/>
-            <text x="328" y="437" class="d-ec">v = ω·r</text>
+            <text id="habitat-v" x="328" y="437" class="d-ec">v = ω·r = 46,8 m/s</text>
             <!-- ecuaciones anotadas -->
             <g>
               <rect x="462" y="40" width="284" height="72" class="caja"/>
@@ -311,7 +321,7 @@
             </g>
           </svg>
         </div>
-        <p class="nota">Diagrama hecho por mí en SVG. La única fuerza sobre la persona es la normal N del piso, que apunta al eje. Por la tercera ley de Newton, la persona empuja el piso con la misma fuerza hacia afuera, y eso es lo que percibe como su peso.</p>
+        <p class="nota">Diagrama hecho por mí en SVG. Las marcas del anillo giran en tiempo real a la velocidad escogida (con 2 rpm, una vuelta cada 30 s); la persona y las flechas muestran un instante. La única fuerza sobre la persona es la normal N del piso, que apunta al eje. Por la tercera ley de Newton, la persona empuja el piso con la misma fuerza hacia afuera, y eso es lo que percibe como su peso.</p>
       </div>
     </div>
 
@@ -327,10 +337,10 @@
         <table>
           <thead><tr><th>Giro (rpm)</th><th>ω (rad/s)</th><th>Radio para 1 g (m)</th><th>v en el piso (m/s)</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td>0,1047</td><td>894,6</td><td>93,7</td></tr>
-            <tr><td>2</td><td>0,2094</td><td>223,6</td><td>46,8</td></tr>
-            <tr><td>4</td><td>0,4189</td><td>55,9</td><td>23,4</td></tr>
-            <tr><td>6</td><td>0,6283</td><td>24,8</td><td>15,6</td></tr>
+            <tr data-rpm="1"><td>1</td><td>0,1047</td><td>894,6</td><td>93,7</td></tr>
+            <tr data-rpm="2" class="activa"><td>2</td><td>0,2094</td><td>223,6</td><td>46,8</td></tr>
+            <tr data-rpm="4"><td>4</td><td>0,4189</td><td>55,9</td><td>23,4</td></tr>
+            <tr data-rpm="6"><td>6</td><td>0,6283</td><td>24,8</td><td>15,6</td></tr>
           </tbody>
         </table>
       </div>
@@ -516,6 +526,7 @@
 <script src="js/entradas.js"></script>
 <script src="js/tema1-dron.js"></script>
 <script src="js/tema2-salto.js"></script>
+<script src="js/tema3-habitat.js"></script>
 <script src="js/tema4-llantas.js"></script>
 <script src="js/tema5-haptico.js"></script>
 </body>

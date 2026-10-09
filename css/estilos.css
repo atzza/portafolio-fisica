@@ -181,6 +181,11 @@ button.principal { background: var(--acento); color: var(--fondo); border-color:
 .pasos li { counter-increment: paso; display: grid; grid-template-columns: 2.2em 1fr; gap: 6px; margin: 0; }
 .pasos li::before { content: counter(paso); font: 500 14px/1.7 var(--f-dato); color: var(--acento); }
 .pasos li > div { min-width: 0; }
+.diagrama .d-marca { fill: var(--tinta-2); }
+button[aria-pressed="true"] { background: var(--acento); color: var(--fondo); border-color: var(--acento); }
+tr[data-rpm] { cursor: pointer; }
+tr[data-rpm]:hover td { color: var(--tinta); }
+tr.activa td, tr.activa:hover td { color: var(--acento); }
 
 .pie { border-top: 1px solid var(--regla); padding-block: 40px 64px; color: var(--tinta-2); font-size: 14px; }
 
