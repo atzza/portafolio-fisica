@@ -13,4 +13,5 @@ Documenta cómo la cinemática y la dinámica aparecen en software real.
 
 ## Cómo verlo
 
-Abrir `index.html` en el navegador. No necesita instalación.
+- En línea: **https://atzza.github.io/portafolio-fisica/**
+- En la computadora: abrir `index.html` en el navegador. No necesita instalación.
