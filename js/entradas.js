@@ -383,6 +383,83 @@ const Entradas = (function () {
     };
   };
 
+  // ---------- Tema 5: el cursor estira un resorte, lo suelta y oscila con F = −k·x ----------
+  ESCENAS.resorte = function (svg, W, H) {
+    const piso = H - 40, L = H < 220 ? 44 : 54;        // superficie sin fricción y lado del bloque
+    const xPared = 30, xEq = Math.round(W * (W < 560 ? 0.42 : 0.36));
+    const A = Math.min(W * 0.26, 200), yc = piso - L / 2;
+    const SUELTA = 1.1, OMEGA = (2 * Math.PI) / 0.62, GAMMA = 1.8, CRUCE = SUELTA + Math.PI / 2 / OMEGA;
+    // Desplazamiento x desde el equilibrio (px): se estira y luego oscila amortiguado
+    function desp(t) {
+      if (t < 0.4) return 0;
+      if (t < SUELTA) return tramo(0, A, t - 0.4, 0.7);
+      return A * Math.exp(-GAMMA * (t - SUELTA)) * Math.cos(OMEGA * (t - SUELTA));
+    }
+    function resorte(xa, xb) {
+      const n = W < 560 ? 8 : 12, recto = 10, paso = (xb - xa - 2 * recto) / (2 * n);
+      const pts = [[xa, yc], [xa + recto, yc]];
+      for (let i = 1; i <= 2 * n; i++) pts.push([xa + recto + (i - 0.5) * paso, yc + (i % 2 ? -11 : 11)]);
+      pts.push([xb - recto, yc], [xb, yc]);
+      return pts.map(([a, b]) => a.toFixed(1) + "," + b).join(" ");
+    }
+
+    // Pared y piso con rayado, como en los diagramas de clase
+    let d = `M${xPared} ${piso - 100} V${piso} H${W - 10}`;
+    for (let y = piso - 96; y <= piso; y += 12) d += ` M${xPared} ${y} l-10 10`;
+    for (let x = xPared + 14; x < W - 10; x += 14) d += ` M${x} ${piso} l-8 9`;
+    S("path", { class: "l-2", fill: "none", d, "stroke-width": 1.5 }, svg);
+    S("line", { class: "l-2", x1: xEq, x2: xEq, y1: piso, y2: piso - L - 44, "stroke-dasharray": "4 4" }, svg);
+    S("text", { x: xEq, y: piso - L - 50, "text-anchor": "middle" }, svg).textContent = "x = 0";
+
+    const espiral = S("polyline", { class: "l-tinta", fill: "none", "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    const bloque = S("g", {}, svg);
+    S("rect", { class: "e-acento", x: -L / 2, y: -L, width: L, height: L, rx: 6 }, bloque);
+    S("text", { class: "e-fondo", x: 0, y: -L / 2 + 6, "text-anchor": "middle", style: "font: 700 17px var(--f-dato)" }, bloque).textContent = "m";
+    const llave = S("path", { class: "l-tinta", fill: "none", "stroke-width": 1.5 }, svg);
+    const etqX = S("text", { class: "hud", "text-anchor": "middle" }, svg);
+    etqX.textContent = "x";
+    const fuerza = flecha(svg);
+    const etqF = S("text", { class: "hud", "text-anchor": "middle" }, svg);
+    etqF.textContent = "F = −k·x";
+    // Cursor del mouse que agarra el bloque
+    const cursor = S("path", { class: "e-tinta l-fondo", d: "M0 0 V17 L4.5 13 L7.5 20 L10 19 L7 12.5 H12.5 Z", "stroke-width": 1.2, transform: "scale(1.3)" }, svg);
+    const [hud1, hud2] = hud(svg, 2);
+
+    const K = 90 / A; // largo de la flecha por cada px de desplazamiento
+    return {
+      dur: SUELTA + 2.4,
+      impacto: CRUCE,
+      cuadro(t) {
+        const fin = t >= SUELTA + 2.4, x = fin ? 0 : desp(t), bx = xEq + x;
+        bloque.setAttribute("transform", `translate(${bx},${piso})`);
+        espiral.setAttribute("points", resorte(xPared, bx - L / 2));
+        // Desplazamiento x medido desde el equilibrio
+        const hay = Math.abs(x) > 6;
+        llave.setAttribute("d", hay ? `M${xEq} ${piso + 12} v9 M${xEq} ${piso + 16} H${bx} M${bx} ${piso + 12} v9` : "");
+        etqX.style.display = hay ? "" : "none";
+        etqX.setAttribute("x", xEq + x / 2);
+        etqX.setAttribute("y", piso + 32);
+        // Fuerza del resorte sobre el bloque: siempre hacia el equilibrio
+        fuerza.poner(bx, piso - L - 14, -K * x, 0);
+        etqF.style.display = hay ? "" : "none";
+        etqF.setAttribute("x", bx - (K * x) / 2);
+        etqF.setAttribute("y", piso - L - 22);
+        // El cursor llega, estira y suelta
+        const agarre = [xEq + L / 2 - 3, yc - 4];
+        let c, op = 1;
+        if (t < 0.4) c = [tramo(W - 40, agarre[0], t, 0.4), tramo(26, agarre[1], t, 0.4)];
+        else if (t < SUELTA) c = [agarre[0] + x, agarre[1]];
+        else { const τ = t - SUELTA; c = [agarre[0] + A + 40 * τ, agarre[1] - 70 * τ]; op = Math.max(0, 1 - τ / 0.3); }
+        cursor.setAttribute("transform", `translate(${c[0]},${c[1]}) scale(1.3)`);
+        cursor.style.opacity = op;
+        // Datos: k = 50 N/m y el estiramiento máximo equivale a 5 cm
+        const cm = (x / A) * 5;
+        hud1.textContent = `x = ${Fis.n(cm, 1)} cm · F = ${Fis.n(-0.5 * cm, 2).replace("-", "−")} N`;
+        hud2.textContent = t < 0.4 ? "k = 50 N/m" : t < SUELTA ? "estirando el resorte" : fin ? "en equilibrio: x = 0, F = 0" : "suelto: F = −k·x lo regresa";
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,
