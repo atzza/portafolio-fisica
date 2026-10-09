@@ -20,7 +20,7 @@
     const comparar = cComparar.checked;
     const hT = alturaMax(v0, G_TIERRA), TT = tiempoAire(v0, G_TIERRA);
 
-    el("sim-impulso-valor").textContent = Fis.n(v0, 1) + " m/s";
+    el("sim-impulso-valor").textContent = Fis.n(v0) + " m/s";
     el("sim-gravedad-valor").textContent = Fis.n(g, 2) + " m/s²";
     el("sim-altura").textContent = Fis.n(h) + " m";
     el("sim-tiempo").textContent = Fis.n(T) + " s";
