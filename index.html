@@ -500,12 +500,22 @@
           <p>La curva de abajo muestra cómo se vería esa fuerza a lo largo del recorrido. Tiene tres zonas, y solo la del centro cumple la ley de Hooke.</p>
         </div>
         <p class="graf-titulo">Fuerza del gatillo sobre el dedo (N) según el desplazamiento</p>
-        <div class="leyenda">
-          <span style="--c:var(--serie-1)">Fuerza que entrega el gatillo</span>
-          <span style="--c:var(--serie-2)">Resorte ideal sin límite</span>
+        <div class="control">
+          <label for="gatillo-x">Apretá el gatillo: desplazamiento x <output id="gatillo-x-valor" for="gatillo-x"></output></label>
+          <input type="range" id="gatillo-x" min="0" max="8" step="0.05" value="4">
         </div>
-        <div id="graf-resorte" data-titulo="Fuerza contra desplazamiento del gatillo: zona libre, zona de resorte virtual y límite del motor"></div>
-        <p class="nota">Curva calculada por mí con valores ilustrativos, no medidos: resorte de retorno de kᵣ = 0,15 N/mm, resorte virtual de k = 1,0 N/mm que se activa en x₀ = 2 mm y fuerza máxima del motor de 5 N. En la zona central la pendiente de la recta es 1,15 N/mm: la constante k del resorte virtual más los 0,15 N/mm del resorte de retorno, que sigue empujando. Cuando el motor llega a su límite, la fuerza deja de crecer y el resorte virtual deja de comportarse como uno real.</p>
+        <div class="lectura" id="gatillo-lectura" aria-live="polite"></div>
+        <div class="gatillo-y-curva">
+          <div id="gatillo" data-titulo="Dibujo del gatillo visto de lado: el dedo empuja el gatillo y el gatillo empuja el dedo con la misma fuerza en sentido contrario"></div>
+          <div>
+            <div class="leyenda">
+              <span style="--c:var(--serie-1)">Fuerza que entrega el gatillo</span>
+              <span style="--c:var(--serie-2)">Resorte ideal sin límite</span>
+            </div>
+            <div id="graf-resorte" data-titulo="Fuerza contra desplazamiento del gatillo: zona libre, zona de resorte virtual y límite del motor"></div>
+          </div>
+        </div>
+        <p class="nota">Mové el control (o tocá la curva) para apretar el gatillo. Las dos flechas del dibujo son el par de la tercera ley: misma magnitud, sentidos opuestos y aplicadas a cuerpos distintos. Curva calculada por mí con valores ilustrativos, no medidos: resorte de retorno de kᵣ = 0,15 N/mm, resorte virtual de k = 1,0 N/mm que se activa en x₀ = 2 mm y fuerza máxima del motor de 5 N. En la zona central la pendiente de la recta es 1,15 N/mm: la constante k del resorte virtual más los 0,15 N/mm del resorte de retorno, que sigue empujando. Cuando el motor llega a su límite, la fuerza deja de crecer y el resorte virtual deja de comportarse como uno real.</p>
       </div>
     </div>
 
