@@ -297,6 +297,92 @@ const Entradas = (function () {
     };
   };
 
+  // ---------- Tema 4: un Fórmula 1 entra a toda velocidad y frena por fricción ----------
+  ESCENAS.f1 = function (svg, W, H) {
+    const rad = Math.PI / 180;
+    const s = W < 560 ? 0.72 : 1.35;                  // escala del auto
+    const asfalto = H - 46, contacto = asfalto + 22;  // donde las llantas tocan la pista
+    // Pista: valla al fondo, piano rojo y blanco, asfalto
+    let valla = `M0 ${asfalto - 34} H${W}`;
+    for (let x = 20; x < W; x += 60) valla += ` M${x} ${asfalto - 34} V${asfalto - 6}`;
+    S("path", { class: "l-regla", d: valla, "stroke-width": 2 }, svg);
+    S("rect", { class: "e-sup", x: 0, y: asfalto, width: W, height: 34 }, svg);
+    for (let x = 0, i = 0; x < W; x += 22, i++) S("rect", { class: i % 2 ? "e-tinta" : "e-acento", x, y: asfalto - 6, width: 22, height: 6 }, svg);
+    S("line", { class: "l-regla", x1: 0, x2: W, y1: asfalto + 34, y2: asfalto + 34, "stroke-width": 2 }, svg);
+
+    // Frenado con desaceleración constante a = μ·g: v² = v₀² − 2·a·d
+    let v0 = W * (W < 560 ? 1.15 : 1), tb = 0.9;
+    const xStop = W * (W < 560 ? 0.5 : 0.56), xIn = -120 * s - 20;
+    let xB = xStop - (v0 * tb) / 2;
+    if (xB < xIn) { xB = xIn; tb = (2 * (xStop - xIn)) / v0; }
+    const a = v0 / tb, tE = (xB - xIn) / v0, PARA = tE + tb;
+    function mov(t) {
+      if (t < tE) return { x: xIn + v0 * t, v: v0 };
+      if (t < PARA) { const τ = t - tE; return { x: xB + v0 * τ - 0.5 * a * τ * τ, v: v0 - a * τ }; }
+      return { x: xStop, v: 0 };
+    }
+
+    const velocidad = S("path", { class: "l-2", fill: "none", "stroke-width": 2, "stroke-linecap": "round" }, svg);
+    // Auto visto de lado, mirando a la derecha; (0, 0) es el suelo bajo el centro
+    const auto = S("g", {}, svg);
+    const chasis = S("g", {}, auto);
+    S("rect", { class: "e-tinta-2", x: -100, y: -50, width: 5, height: 30 }, chasis);
+    S("rect", { class: "e-tinta", x: -108, y: -54, width: 26, height: 5 }, chasis);
+    S("rect", { class: "e-tinta", x: -106, y: -46, width: 20, height: 3 }, chasis);
+    S("path", { class: "e-acento", d: "M-96 -12 L-96 -26 L-70 -28 L-44 -40 L-30 -46 L-18 -44 L-8 -32 L18 -30 L40 -24 L98 -15 L100 -12 Z" }, chasis);
+    S("rect", { class: "e-tinta-2", x: -92, y: -12, width: 186, height: 4 }, chasis);
+    S("path", { class: "l-fondo", fill: "none", d: "M-88 -16 H60", "stroke-width": 2 }, chasis);
+    S("text", { class: "e-fondo", x: -36, y: -24, "text-anchor": "middle", style: "font: 700 13px var(--f-dato)" }, chasis).textContent = "4";
+    S("rect", { class: "e-tinta", x: 80, y: -9, width: 28, height: 4 }, chasis);
+    S("rect", { class: "e-tinta", x: 104, y: -15, width: 3, height: 10 }, chasis);
+    S("circle", { class: "e-tinta-2", cx: 2, cy: -35, r: 5.5 }, chasis);
+    S("path", { class: "l-tinta", fill: "none", d: "M-8 -33 Q4 -45 20 -31", "stroke-width": 2.6, "stroke-linecap": "round" }, chasis);
+    // Llantas: ruedan sin deslizar, así que giran un ángulo θ = x / r
+    const ruedas = [[-62, 18], [64, 16]].map(([x, r]) => {
+      const g = S("g", { transform: `translate(${x},${-r})` }, auto);
+      S("circle", { class: "e-fondo l-tinta", r, "stroke-width": 2 }, g);
+      const gira = S("g", {}, g);
+      S("circle", { class: "l-acento", r: r * 0.78, fill: "none", "stroke-width": 1.5, "stroke-dasharray": `${r * 0.9} ${r * 0.6}` }, gira);
+      S("circle", { class: "e-sup l-2", r: r * 0.52, "stroke-width": 1 }, gira);
+      let d = "";
+      for (let i = 0; i < 5; i++) d += `M0 0 L${r * 0.5 * Math.cos(i * 72 * rad)} ${r * 0.5 * Math.sin(i * 72 * rad)} `;
+      S("path", { class: "l-2", d, "stroke-width": 1.5 }, gira);
+      const brillo = S("circle", { class: "e-acento", r: r * 0.36, opacity: 0 }, g);
+      return { x, r, gira, brillo };
+    });
+    // Fuerza de fricción en cada llanta: apunta hacia atrás mientras frena
+    const fuerzas = ruedas.map(() => flecha(svg, "flecha-tinta"));
+    const etqF = S("text", { class: "hud", "text-anchor": "middle" }, svg);
+    etqF.textContent = "f = μ·N";
+    const [hud1, hud2] = hud(svg, 2);
+
+    return {
+      dur: PARA + 0.7,
+      impacto: PARA,
+      cuadro(t) {
+        const m = mov(t), frena = t >= tE && t < PARA, d = t - PARA;
+        auto.setAttribute("transform", `translate(${m.x},${contacto}) scale(${s})`);
+        // Al frenar, el peso pasa adelante y la nariz baja; al detenerse, la suspensión oscila y se calma
+        const cabeceo = frena ? 1.6 : d >= 0 ? 1.6 * Math.exp(-6 * d) * Math.cos(16 * d) : 0;
+        chasis.setAttribute("transform", `rotate(${cabeceo},0,-20)`);
+        ruedas.forEach((r) => {
+          r.gira.setAttribute("transform", `rotate(${m.x / (r.r * s) / rad})`);
+          r.brillo.setAttribute("opacity", frena ? 0.75 : d >= 0 ? Math.max(0, 0.75 - d * 1.2) : 0);
+        });
+        fuerzas.forEach((f, i) => f.poner(m.x + ruedas[i].x * s, contacto + 5, frena ? -34 * s : 0, 0));
+        etqF.style.display = frena ? "" : "none";
+        etqF.setAttribute("x", m.x - 16 * s);
+        etqF.setAttribute("y", contacto + 9);
+        // Líneas de velocidad detrás del auto
+        const largo = 150 * (m.v / v0), atras = m.x - 112 * s;
+        velocidad.setAttribute("d", largo < 4 ? "" : [10, 22, 34].map((y, i) => `M${atras - 8 - i * 14} ${contacto - y * s} h${-largo * (1 - i * 0.2)}`).join(" "));
+        velocidad.style.opacity = m.v / v0;
+        hud1.textContent = `v = ${Fis.n((m.v / v0) * 300, 0)} km/h`;
+        hud2.textContent = frena ? "frenando: a = −μ·g" : d >= 0 ? "detenido por la fricción" : "";
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,
