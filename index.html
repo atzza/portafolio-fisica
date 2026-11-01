@@ -31,6 +31,8 @@
       <a href="#tema-5">5 · Control háptico</a>
       <a href="#tema-6">6 · Frenado regenerativo</a>
       <a href="#tema-7">7 · Rebote</a>
+      <a href="#tema-8">8 · Ruedas de reacción</a>
+      <a href="#tema-9">9 · Voyager</a>
     </div>
   </div>
 </nav>
@@ -47,6 +49,8 @@
     <li><a href="#tema-5"><span class="indice__punto" style="--c:#2447e6"></span><span class="indice__num">Tema 5</span><span class="indice__nombre">El resorte virtual detrás de un control háptico</span></a></li>
     <li><a href="#tema-6"><span class="indice__punto" style="--c:#8bff5e"></span><span class="indice__num">Tema 6</span><span class="indice__nombre">Frenado regenerativo en un vehículo eléctrico</span></a></li>
     <li><a href="#tema-7"><span class="indice__punto" style="--c:#ff5ec4"></span><span class="indice__num">Tema 7</span><span class="indice__nombre">El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal</span></a></li>
+    <li><a href="#tema-8"><span class="indice__punto" style="--c:#4fd2ff"></span><span class="indice__num">Tema 8</span><span class="indice__nombre">Ruedas de reacción: cómo un satélite se gira sin empujarse contra nada</span></a></li>
+    <li><a href="#tema-9"><span class="indice__punto" style="--c:#f2c14e"></span><span class="indice__num">Tema 9</span><span class="indice__nombre">Asistencia gravitatoria: cómo la Voyager ganó velocidad sin gastar combustible</span></a></li>
   </ol>
 </header>
 
@@ -704,6 +708,226 @@
   </div>
 </section>
 
+<!-- ============================ TEMA 8 ============================ -->
+<section class="tema" id="tema-8" data-mundo-seccion="8">
+  <div class="contenedor">
+    <div class="tema__cabeza">
+      <span class="tema__num">Tema 8 · Conservación del momento angular y torque</span>
+      <h2>Ruedas de reacción: cómo un satélite se gira sin empujarse contra nada</h2>
+      <p class="tema__concepto">En el espacio no hay contra qué apoyarse. Para girar, el satélite acelera una rueda que lleva adentro: la rueda gira para un lado y el satélite, para el otro.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Caso de uso en Ingeniería del Software</h3>
+      <div class="partes">
+        <div>
+          <h4>El caso</h4>
+          <p>El telescopio espacial Kepler, de la NASA, buscaba planetas midiendo el brillo de las estrellas, y para eso debía apuntar con muchísima precisión. Tenía cuatro ruedas de reacción y necesitaba tres. En mayo de 2013 falló la segunda. Sin la tercera rueda ya no podía compensar la presión de la luz solar, y los ingenieros rediseñaron la misión como K2: usar esa misma luz para mantener la nave apuntada.</p>
+        </div>
+        <div>
+          <h4>Por qué modelar la física</h4>
+          <p>Una tabla de maniobras fijas no alcanza, porque la luz solar y otros torques externos van cambiando el momento angular de la nave todo el tiempo. Con L = I·ω, el software de control sabe cuánto debe acelerar cada rueda para cada giro y cuánto margen le queda. Además, la rueda gira sin gastar combustible: solo usa electricidad, que viene de los paneles.</p>
+        </div>
+        <div>
+          <h4>Lo que cuesta</h4>
+          <p>La rueda no puede acelerar sin fin: al llegar a su velocidad máxima se satura, y hay que frenarla con un torque externo, que en Kepler venía de propulsores que sí gastan combustible. Las ruedas también son piezas móviles que se desgastan. Y el modelo depende de conocer bien la inercia de la nave: si está mal, los giros no salen como se calcularon.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>El concepto físico</h3>
+      <div class="ecuacion">L = I·ω &nbsp;&nbsp;&nbsp; τ = <span class="frac"><span>ΔL</span><span>Δt</span></span></div>
+      <div class="ecuacion">I<sub>s</sub>·ω<sub>s</sub> + I<sub>r</sub>·ω<sub>r</sub> = constante</div>
+      <div class="ecuacion">ω<sub>s</sub> = − <span class="frac"><span>I<sub>r</sub></span><span>I<sub>s</sub></span></span>·ω<sub>r</sub></div>
+      <p class="donde">L es el momento angular, I el momento de inercia, ω la velocidad angular y τ el torque. El subíndice s es el satélite y r es la rueda. El motor aplica un torque a la rueda y, por la tercera ley, la rueda aplica uno igual y opuesto al satélite. Son fuerzas internas, así que el L total no cambia. Si la nave parte en reposo, la constante es cero y por eso giran en sentidos opuestos. Como I<sub>s</sub> es mucho mayor que I<sub>r</sub>, el satélite gira muy despacio aunque la rueda gire muy rápido.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Recurso de apoyo</h3>
+      <div class="recurso">
+        <p class="recurso__tipo">Diagrama</p>
+        <p class="recurso__titulo">Satélite con su rueda de reacción: lo que gana la rueda lo pierde el satélite</p>
+        <div class="botones" role="group" aria-label="Velocidad de la rueda de reacción">
+          <span class="casilla">Velocidad de la rueda:</span>
+          <button type="button" data-sat="0" aria-pressed="false">0 rpm</button>
+          <button type="button" data-sat="1000" aria-pressed="true">1000 rpm</button>
+          <button type="button" data-sat="3000" aria-pressed="false">3000 rpm</button>
+          <button type="button" data-sat="6000" aria-pressed="false">6000 rpm (máxima)</button>
+        </div>
+        <div class="lectura" id="sat-lectura" aria-live="polite"></div>
+        <div class="diagrama diagrama--entero" id="sat-dibujo">
+          <svg viewBox="0 0 420 420" role="img" aria-label="Satélite con paneles solares y una rueda de reacción en su interior: la rueda gira en sentido horario y el satélite en sentido antihorario">
+            <defs>
+              <marker id="sat-fl-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-acento"/></marker>
+              <marker id="sat-fl-t" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-tinta"/></marker>
+            </defs>
+            <!-- satélite: gira alrededor del centro -->
+            <g id="sat-cuerpo">
+              <rect x="25" y="188" width="105" height="44" class="caja"/>
+              <path d="M51 188 V232 M77 188 V232 M104 188 V232" class="t-2" stroke-width="1"/>
+              <rect x="290" y="188" width="105" height="44" class="caja"/>
+              <path d="M316 188 V232 M342 188 V232 M369 188 V232" class="t-2" stroke-width="1"/>
+              <path d="M130 210 H148 M272 210 H290" class="t-2" stroke-width="3"/>
+              <rect x="148" y="148" width="124" height="124" rx="6" class="casco"/>
+              <circle cx="210" cy="210" r="52" class="hueco"/>
+              <!-- rueda: gira al revés del cuerpo -->
+              <g id="sat-rueda">
+                <circle cx="210" cy="210" r="44" fill="none" class="t-acento" stroke-width="5"/>
+                <path d="M210 166 V254 M166 210 H254 M179 179 L241 241 M241 179 L179 241" class="t-acento" stroke-width="2"/>
+                <circle cx="210" cy="166" r="5" class="d-tinta"/>
+              </g>
+              <circle cx="210" cy="210" r="5" class="d-tinta"/>
+            </g>
+            <!-- sentidos de giro: la rueda en sentido horario, el satélite en antihorario -->
+            <path d="M118 31 A202 202 0 0 1 302 31" fill="none" class="t-acento" stroke-width="2.5" marker-end="url(#sat-fl-a)"/>
+            <text x="210" y="46" text-anchor="middle" class="d-ec">ωᵣ: la rueda</text>
+            <path d="M118 389 A202 202 0 0 0 302 389" fill="none" class="t-tinta" stroke-width="2.5" marker-end="url(#sat-fl-t)"/>
+            <text x="210" y="382" text-anchor="middle" class="d-ec">ωₛ: el satélite</text>
+          </svg>
+          <svg viewBox="0 0 380 420" role="img" aria-label="Valores de la rueda y del satélite, dos barras iguales y opuestas con el intercambio de momento angular, y las ecuaciones del sistema">
+            <rect x="4" y="6" width="372" height="82" class="caja"/>
+            <text x="20" y="28">Rueda de reacción</text>
+            <text id="sat-texto-wr" x="20" y="54" class="d-ec">ωᵣ</text>
+            <text id="sat-texto-lr" x="20" y="76" class="d-ec">Lᵣ</text>
+            <rect x="4" y="98" width="372" height="82" class="caja"/>
+            <text x="20" y="120">Satélite (el eje de giro sale de la pantalla)</text>
+            <text id="sat-texto-ws" x="20" y="146" class="d-ec">ωₛ</text>
+            <text id="sat-texto-ls" x="20" y="168" class="d-ec">Lₛ</text>
+            <!-- intercambio de momento angular -->
+            <text x="190" y="208" text-anchor="middle" class="d-tinta">Intercambio de momento angular</text>
+            <rect id="sat-barra-s" x="165" y="220" width="25" height="20" class="d-tinta"/>
+            <rect id="sat-barra-r" x="190" y="220" width="25" height="20" class="d-acento"/>
+            <line x1="190" x2="190" y1="214" y2="246" class="t-tinta" stroke-width="2"/>
+            <line x1="40" x2="40" y1="214" y2="246" class="t-2" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <line x1="340" x2="340" y1="214" y2="246" class="t-2" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <text x="40" y="262" text-anchor="middle">−L máx</text>
+            <text id="sat-limite" x="340" y="262" text-anchor="middle">+L máx</text>
+            <text id="sat-suma" x="190" y="282" text-anchor="middle" class="d-ec">L total = 0,00 N·m·s</text>
+            <text x="20" y="324" class="d-ec">Iₛ·ωₛ + Iᵣ·ωᵣ = 0</text>
+            <text x="20" y="352" class="d-ec">τ del motor = Iᵣ·Δωᵣ / Δt</text>
+            <text x="20" y="380" class="d-ec">L máx = Iᵣ·ωᵣ máx = 50,27 N·m·s</text>
+            <text x="20" y="408">Al llegar a L máx, la rueda se satura.</text>
+          </svg>
+        </div>
+        <p class="nota">Diagrama hecho por mí en SVG, con valores ilustrativos: I<sub>s</sub> = 1500 kg·m² e I<sub>r</sub> = 0,08 kg·m². No está a escala: el satélite se dibuja girando 10 veces más rápido de lo real para que se note, y la rueda, mucho más lenta. Los valores numéricos sí son los calculados.</p>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>Caso numérico y qué pasa en la velocidad máxima</h3>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Rueda (rpm)</th><th>ω<sub>r</sub> (rad/s)</th><th>L<sub>r</sub> (N·m·s)</th><th>ω<sub>s</sub> (°/s)</th></tr></thead>
+          <tbody>
+            <tr><td>1000</td><td>104,7</td><td>8,38</td><td>−0,32</td></tr>
+            <tr><td>3000</td><td>314,2</td><td>25,13</td><td>−0,96</td></tr>
+            <tr><td>6000</td><td>628,3</td><td>50,27</td><td>−1,92</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Cuando la rueda llega a su velocidad máxima <strong>se satura</strong>: ya no puede acelerar más, así que el satélite pierde la capacidad de girar en ese sentido. Con mis valores, ese límite es L<sub>máx</sub> = 0,08 × 628,3 = 50,27 N·m·s.</p>
+      <p>Lo peor es que no hace falta maniobrar para llegar ahí. Un torque externo pequeño, como el de la luz solar, cambia el momento angular total, y la rueda debe absorberlo para mantener la nave quieta. Con τ = 0,001 N·m, se satura en t = L<sub>máx</sub> / τ = 50 265 s, unas 14 horas.</p>
+      <p>La salida es <strong>desaturar</strong>: frenar la rueda mientras un torque externo saca ese momento angular de la nave. Eso solo funciona con algo que empuje desde afuera del sistema, como propulsores o, en órbita baja, bobinas magnéticas contra el campo de la Tierra. Por eso una rueda no elimina el combustible por completo: Kepler terminó su misión cuando se le acabó.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Conexiones</h3>
+      <p>En la semana 6 vimos el diccionario entre traslación y rotación (F→τ, m→I, a→α), la dinámica rotacional Στ = I·α, el momento de inercia y cómo pasar de rpm a rad/s con el ejemplo del vinilo. L = I·ω es la versión rotacional de p = m·v de la semana 5. También vimos ahí que sin fuerzas externas el momento se conserva, y que un P total de cero no implica K = 0: aquí pasa igual, porque L total sigue en cero aunque la rueda y el satélite estén girando.</p>
+      <p>Se relaciona con el <a href="#tema-3">tema 3</a>, porque usa la misma conversión de rpm a ω, aunque allá el giro produce gravedad y aquí orienta la nave. Y con el <a href="#tema-5">tema 5</a>, porque en los dos hay un par de acción y reacción entre un motor y lo que empuja. En el <a href="#tema-9">tema 9</a> también se intercambia momento, pero entre una sonda y un planeta.</p>
+      <h3>Fuentes</h3>
+      <ul class="fuentes">
+        <li>NASA. <em>Kepler / K2</em>. NASA Science. <a href="https://science.nasa.gov/mission/kepler/">science.nasa.gov/mission/kepler</a></li>
+        <li>Scientific American. <em>Busted Exoplanet-Hunting Kepler Space Telescope Gets a New Mission</em>. <a href="https://www.scientificamerican.com/article/busted-exoplanet-hunting-kepler-space-telescope-gets-a-new-mission/">scientificamerican.com/article/busted-exoplanet-hunting-kepler-space-telescope-gets-a-new-mission</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TEMA 9 ============================ -->
+<section class="tema" id="tema-9" data-mundo-seccion="9">
+  <div class="contenedor">
+    <div class="tema__cabeza">
+      <span class="tema__num">Tema 9 · Gravitación universal y conservación en el marco del planeta</span>
+      <h2>Asistencia gravitatoria: cómo la Voyager ganó velocidad sin gastar combustible</h2>
+      <p class="tema__concepto">Visto desde el planeta, la sonda se va tan rápido como llegó. Visto desde el Sol, el planeta se la lleva con él, y la sonda sale con más rapidez.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Caso de uso en Ingeniería del Software</h3>
+      <div class="partes">
+        <div>
+          <h4>El caso</h4>
+          <p>Horizons, el sistema de efemérides de NASA/JPL, calcula la posición y la velocidad de planetas, lunas y naves, y cualquiera lo puede consultar por una API. De ahí salieron los datos de mi gráfica. Estas trayectorias nacieron en una computadora: en 1961, Michael Minovitch, un estudiante que trabajaba los veranos en JPL, usó una IBM 7090 para buscar soluciones del problema de los tres cuerpos.</p>
+        </div>
+        <div>
+          <h4>Por qué modelar la física</h4>
+          <p>Una ruta guionizada de antemano no sirve: el resultado depende de dónde está cada planeta en ese momento y de a qué distancia pasa la nave, y una corrección pequeña cambia todo lo que sigue. Con F = G·M·m/r² se recalcula cualquier trayectoria. Lo que se gana es enorme: en Júpiter, la Voyager 2 casi duplicó su rapidez sin encender un motor para eso.</p>
+        </div>
+        <div>
+          <h4>Lo que cuesta</h4>
+          <p>El cálculo es muy sensible: exige modelos precisos de muchos cuerpos y correcciones durante el viaje. Además, los planetas tienen que estar en la posición justa, así que la fecha de lanzamiento no se escoge libremente. Y a veces se paga: en Neptuno, la Voyager 2 terminó con menos rapidez por pasar cerca de la luna Tritón. La gráfica lo muestra.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>El concepto físico</h3>
+      <div class="ecuacion">F = <span class="frac"><span>G·M·m</span><span>r²</span></span> &nbsp;&nbsp;&nbsp; U = − <span class="frac"><span>G·M·m</span><span>r</span></span></div>
+      <div class="ecuacion"><span class="frac"><span>E</span><span>m</span></span> = <span class="frac"><span>1</span><span>2</span></span>·v² − <span class="frac"><span>G·M</span><span>r</span></span> &nbsp;&nbsp;&nbsp; v<sub>escape</sub> = √(2·G·M / r)</div>
+      <div class="ecuacion">v<sub>Sol</sub> = v<sub>planeta</sub> + v<sub>rel</sub> &nbsp;&nbsp;&nbsp; |v<sub>rel,salida</sub>| = |v<sub>rel,entrada</sub>|</div>
+      <p class="donde">M es la masa del Sol, m la de la sonda, r la distancia entre ellos y G la constante de gravitación. Entre planetas domina el Sol, así que E/m casi no cambia: la sonda se frena al alejarse porque cambia energía cinética por potencial. Si E/m es negativa, sigue atada al Sol; si es positiva, ya no regresa. En el encuentro, en el marco del planeta la rapidez de entrada y de salida es la misma y solo cambia la dirección. Al sumarle la velocidad del planeta, en el marco del Sol la rapidez sí cambia. Ese momento lo aporta el planeta, tan masivo que su pérdida es demasiado pequeña para medirla.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Recurso de apoyo</h3>
+      <div class="recurso">
+        <p class="recurso__tipo">Visualización de datos</p>
+        <p class="recurso__titulo">Cada planeta le da a la Voyager un salto de rapidez, salvo uno</p>
+        <div class="botones" role="group" aria-label="Sonda que se muestra en la gráfica">
+          <button type="button" data-nave="2" aria-pressed="true">Voyager 2</button>
+          <button type="button" data-nave="1" aria-pressed="false">Voyager 1</button>
+        </div>
+        <div class="lectura" id="voyager-lectura" aria-live="polite"></div>
+        <p class="graf-titulo">Rapidez respecto al Sol (km/s)</p>
+        <div class="leyenda">
+          <span style="--c:var(--serie-1)">Rapidez de la sonda</span>
+          <span style="--c:var(--serie-2)">Velocidad de escape del Sol en ese punto</span>
+        </div>
+        <div id="graf-voyager" data-titulo="Rapidez de la sonda respecto al Sol contra el tiempo, con un pico en cada encuentro planetario y la velocidad de escape como referencia"></div>
+        <div class="tabla-scroll">
+          <table id="voyager-tabla">
+            <thead><tr><th>Encuentro</th><th>v 60 días antes (km/s)</th><th>Pico (km/s)</th><th>v 60 días después (km/s)</th><th>Cambio (km/s)</th><th>E/m antes (km²/s²)</th><th>E/m después (km²/s²)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="nota">Pasá el cursor (o el dedo) por la gráfica para leer cada fecha. Fuente: NASA/JPL Horizons, vectores de las naves −32 y −31 respecto al centro del Sol, de setiembre de 1977 a enero de 1990. Descargué un dato por día y usé uno cada 15 días, más todos los días cercanos a cada encuentro. Calculé la rapidez como |v|, y E/m y v<sub>escape</sub> con G·M = 1,327 × 10¹¹ km³/s².</p>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>Qué muestran los datos</h3>
+      <p><strong>El pico no es la ganancia.</strong> Al pasar junto al planeta, la rapidez sube mucho por un momento porque la sonda cae en su pozo gravitatorio, y luego baja al salir. Por eso comparo 60 días antes y 60 días después. En Júpiter, la Voyager 2 pasó de 10,35 a 19,51 km/s, aunque el pico llegó a 25,79 km/s.</p>
+      <p><strong>Entre planetas, la energía casi no cambia.</strong> La rapidez de la Voyager 2 baja de 19,99 a 18,11 km/s entre Saturno y Urano, pero E/m se mantiene cerca de 113 km²/s². Los saltos ocurren en los encuentros: de unos −121 antes de Júpiter a unos +30 después, a unos +114 tras Saturno y a +148 tras Urano. Tras Neptuno baja a +110.</p>
+      <p><strong>Júpiter la liberó.</strong> Antes de Júpiter la sonda iba por debajo de la velocidad de escape: seguía atada al Sol. Después queda siempre por encima, y por eso sigue alejándose.</p>
+      <p><strong>Neptuno le quitó rapidez.</strong> De 18,87 bajó a 16,69 km/s. La Voyager 2 pasó sobre el polo norte de Neptuno para llegar a la luna Tritón, y eso la desvió hacia el sur, fuera del plano de los planetas. A mi entender, por eso su velocidad ya no se sumaba tan bien con la del planeta. En la Voyager 1 pasa algo parecido en Saturno: acercarse a la luna Titán la sacó del plano, y apenas ganó de 20,32 a 21,42 km/s.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Conexiones</h3>
+      <p>En la semana 2 vimos la velocidad relativa con el ejemplo del tren: la rapidez depende de quién mide, y esa es la clave de este tema. En la semana 4 vimos la conservación de la energía mecánica E = K + U, que aquí se comprueba con datos reales entre un planeta y otro. Y en la semana 5, los choques elásticos: en el marco del planeta, el encuentro se comporta como un rebote con e = 1, porque la sonda sale con la misma rapidez relativa con que llegó, aunque no haya contacto.</p>
+      <p>Por eso se conecta con el <a href="#tema-7">tema 7</a>, y también con el <a href="#tema-8">tema 8</a>, porque en los dos casos el momento pasa de un cuerpo a otro y el total se conserva. Y con el <a href="#tema-6">tema 6</a>: en los dos hay energía cinética que se transforma, solo que aquí se intercambia con la potencial y no se disipa.</p>
+      <h3>Fuentes</h3>
+      <ul class="fuentes">
+        <li>NASA/JPL Solar System Dynamics. <em>Horizons System</em> (datos: naves −32 y −31, consulta del 31 de octubre de 2026). <a href="https://ssd.jpl.nasa.gov/horizons/">ssd.jpl.nasa.gov/horizons</a></li>
+        <li>NASA. <em>Basics of Space Flight, Chapter 4: Trajectories</em>. <a href="https://science.nasa.gov/learn/basics-of-space-flight/chapter4-1/">science.nasa.gov/learn/basics-of-space-flight/chapter4-1</a></li>
+        <li>NASA PDS, Planetary Plasma Interactions. <em>Voyager 2</em> y <em>Voyager 1</em>. <a href="https://search-pdsppi.igpp.ucla.edu/mission/Voyager_2">search-pdsppi.igpp.ucla.edu/mission/Voyager_2</a> · <a href="https://search-pdsppi.igpp.ucla.edu/mission/Voyager_1">search-pdsppi.igpp.ucla.edu/mission/Voyager_1</a></li>
+        <li>Wikipedia. <em>Michael Minovitch</em>. <a href="https://en.wikipedia.org/wiki/Michael_Minovitch">en.wikipedia.org/wiki/Michael_Minovitch</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="pie">
@@ -720,5 +944,8 @@
 <script src="js/datos/udds.js"></script>
 <script src="js/tema6-regeneracion.js"></script>
 <script src="js/tema7-rebote.js"></script>
+<script src="js/tema8-rueda.js"></script>
+<script src="js/datos/voyager.js"></script>
+<script src="js/tema9-voyager.js"></script>
 </body>
 </html>

@@ -232,6 +232,9 @@ tr.activa td, tr.activa:hover td { color: var(--acento); }
 #tema-8 { --serie-1:#2ba8d6; --serie-2:#e8a33a; }
 #tema-9 { --serie-1:#e0a92c; --serie-2:#5aa9e6; }
 svg .s3 { stroke: var(--serie-3); } svg .s4 { stroke: var(--serie-4); }
+/* Diagrama que entra completo en cualquier pantalla, sin deslizar */
+.diagrama--entero { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px 28px; align-items: center; overflow: visible; }
+.diagrama--entero svg { min-width: 0; width: 100%; }
 select { font: 500 14px/1 var(--f-texto); padding: 8px 10px; color: var(--tinta); background: var(--superficie); border: 1px solid var(--tinta-2); border-radius: 8px; }
 
 /* ---------- Entradas animadas (entradas.js) ---------- */
