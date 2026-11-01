@@ -30,6 +30,7 @@
       <a href="#tema-4">4 · Llantas F1</a>
       <a href="#tema-5">5 · Control háptico</a>
       <a href="#tema-6">6 · Frenado regenerativo</a>
+      <a href="#tema-7">7 · Rebote</a>
     </div>
   </div>
 </nav>
@@ -45,6 +46,7 @@
     <li><a href="#tema-4"><span class="indice__punto" style="--c:#ff6a45"></span><span class="indice__num">Tema 4</span><span class="indice__nombre">Llantas de Fórmula 1: la ventana de temperatura y el agarre</span></a></li>
     <li><a href="#tema-5"><span class="indice__punto" style="--c:#2447e6"></span><span class="indice__num">Tema 5</span><span class="indice__nombre">El resorte virtual detrás de un control háptico</span></a></li>
     <li><a href="#tema-6"><span class="indice__punto" style="--c:#8bff5e"></span><span class="indice__num">Tema 6</span><span class="indice__nombre">Frenado regenerativo en un vehículo eléctrico</span></a></li>
+    <li><a href="#tema-7"><span class="indice__punto" style="--c:#ff5ec4"></span><span class="indice__num">Tema 7</span><span class="indice__nombre">El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal</span></a></li>
   </ol>
 </header>
 
@@ -609,6 +611,99 @@
   </div>
 </section>
 
+<!-- ============================ TEMA 7 ============================ -->
+<section class="tema" id="tema-7" data-mundo-seccion="7">
+  <div class="contenedor">
+    <div class="tema__cabeza">
+      <span class="tema__num">Tema 7 · Colisiones, momento lineal y coeficiente de restitución</span>
+      <h2>El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal</h2>
+      <p class="tema__concepto">Una pelota de videojuego rebota con un solo número. Si ese número o la forma de aplicarlo están mal, se nota de inmediato, aunque uno no sepa explicar por qué.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Caso de uso en Ingeniería del Software</h3>
+      <div class="partes">
+        <div>
+          <h4>El caso</h4>
+          <p>En Unity, cada material físico tiene la propiedad <code>bounciness</code>. Según su documentación, con 0 el objeto no rebota y con 1 rebota sin perder energía: es el coeficiente de restitución e. Además, <code>Physics.bounceThreshold</code> (2 m/s por defecto) hace que dos objetos que chocan con una velocidad relativa menor ya no reboten.</p>
+        </div>
+        <div>
+          <h4>Por qué modelar la física</h4>
+          <p>Una animación de rebote hecha a mano solo sirve para una altura. Con v′ = −e·v, la pelota responde bien sin importar desde dónde cae, contra qué choca o con qué velocidad llega, y cada material se ajusta cambiando un número en vez de animar cada caso.</p>
+        </div>
+        <div>
+          <h4>Lo que cuesta</h4>
+          <p>El motor calcula por pasos, no de forma continua. Si el paso es largo, la pelota entra al piso antes de detectar el choque, y el rebote deja de coincidir con la ecuación. El umbral evita temblores en objetos casi quietos, pero corta los últimos rebotes de golpe. Es un compromiso entre estabilidad y realismo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>El concepto físico</h3>
+      <div class="ecuacion">m<sub>1</sub>·v<sub>1</sub> + m<sub>2</sub>·v<sub>2</sub> = m<sub>1</sub>·v<sub>1</sub>′ + m<sub>2</sub>·v<sub>2</sub>′</div>
+      <div class="ecuacion">e = − <span class="frac"><span>v<sub>1</sub>′ − v<sub>2</sub>′</span><span>v<sub>1</sub> − v<sub>2</sub></span></span> &nbsp;&nbsp;&nbsp; v′ = −e·v</div>
+      <div class="ecuacion">h′ = e²·h</div>
+      <p class="donde">La primera ecuación es la conservación del momento lineal en un choque. La segunda define el coeficiente de restitución: la rapidez con que los cuerpos se separan entre la rapidez con que se acercan. Con e = 1 el choque es elástico y con e = 0 es totalmente inelástico. Contra el piso, que es muchísimo más masivo y no se mueve (v<sub>2</sub> = v<sub>2</sub>′ ≈ 0), queda v′ = −e·v. Como h = v²/(2·g), cada rebote llega a e² veces la altura anterior.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Recurso de apoyo</h3>
+      <div class="recurso">
+        <p class="recurso__tipo">Simulación interactiva</p>
+        <p class="recurso__titulo">Mové el coeficiente de restitución y sentí la diferencia</p>
+        <div class="control">
+          <label for="rebote-e">Coeficiente de restitución e <output id="rebote-e-valor" for="rebote-e"></output></label>
+          <input type="range" id="rebote-e" min="0" max="1.1" step="0.01" value="0.8">
+        </div>
+        <div class="botones">
+          <button class="principal" id="rebote-soltar" type="button">Soltar de nuevo</button>
+          <button type="button" data-rebote="0.8">Realista (0,80)</button>
+          <button type="button" data-rebote="0.2">Muerta (0,20)</button>
+          <button type="button" data-rebote="1">Eterna (1,00)</button>
+          <button type="button" data-rebote="1.1">Imposible (1,10)</button>
+        </div>
+        <div class="botones">
+          <label class="casilla"><input type="checkbox" id="rebote-umbral"> Umbral de rebote de 2 m/s, como Unity</label>
+          <label class="casilla">Paso de física
+            <select id="rebote-paso">
+              <option value="240" selected>240 por segundo</option>
+              <option value="60">60 por segundo</option>
+              <option value="10">10 por segundo</option>
+            </select>
+          </label>
+        </div>
+        <p class="lectura" id="rebote-estado" aria-live="polite"></p>
+        <div class="gatillo-y-curva">
+          <div id="rebote-escena" data-titulo="Pelota que cae desde 3 metros y rebota sobre el piso, con una regla en metros"></div>
+          <div id="rebote-grafica" data-titulo="Altura de la pelota contra el tiempo, con marcas en la altura que predice la ecuación para cada rebote"></div>
+        </div>
+        <div class="leyenda">
+          <span style="--c:var(--serie-1)">Altura de la simulación</span>
+          <span style="--c:var(--serie-2)">Altura que predice h′ = e²·h</span>
+        </div>
+        <dl class="resultados">
+          <div><dt>Rebotes</dt><dd id="rebote-rebotes"></dd></div>
+          <div><dt>Primer rebote según h′ = e²·h</dt><dd id="rebote-primera"></dd></div>
+          <div><dt>Altura del último rebote</dt><dd id="rebote-medida"></dd></div>
+          <div><dt>Energía restante</dt><dd id="rebote-energia"></dd></div>
+        </dl>
+        <p class="nota">Simulación hecha por mí. Se suelta desde 3 m con g = 9,81 m/s². Cada paso calcula v = v − g·Δt y y = y + v·Δt; al tocar el piso aplica v′ = −e·v. La energía restante es (g·y + ½·v²) entre la energía inicial. Con 240 pasos por segundo la curva casi coincide con las marcas de la ecuación. Probá 60 y 10 por segundo, y el umbral de 2 m/s: ahí se ven los dos errores típicos de un motor.</p>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>Conexiones</h3>
+      <p>En la semana 5 vimos la conservación del momento sin fuerzas externas, los choques elásticos e inelásticos y el coeficiente de restitución, con simulaciones en una dimensión de masas iguales, rebotes e intercambio de velocidades, y el ejemplo del niño y el adulto donde el momento se conserva pero se pierde energía cinética. Un e mayor que 1 haría lo contrario: ganaría energía cinética sin que nada la aporte, y por eso es imposible en un choque común.</p>
+      <p>Tiene la misma ecuación de caída que el <a href="#tema-2">tema 2</a>, solo que allá se ajusta la gravedad y aquí el rebote; en los dos, un número del motor decide cómo se siente el juego. Y conecta con el <a href="#tema-6">tema 6</a>: en un rebote con e &lt; 1 la energía cinética también se transforma en vez de desaparecer.</p>
+      <h3>Fuentes</h3>
+      <ul class="fuentes">
+        <li>Unity Technologies. <em>PhysicsMaterial.bounciness</em>. Unity Scripting API. <a href="https://docs.unity.com/en-us/engine/current/script-reference/unityengine/physicsmaterial/bounciness">docs.unity.com/en-us/engine/current/script-reference/unityengine/physicsmaterial/bounciness</a></li>
+        <li>Unity Technologies. <em>Physics.bounceThreshold</em>. Unity Scripting API. <a href="https://docs.unity.com/en-us/engine/current/script-reference/unityengine/physics/bouncethreshold">docs.unity.com/en-us/engine/current/script-reference/unityengine/physics/bouncethreshold</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="pie">
@@ -624,5 +719,6 @@
 <script src="js/tema5-haptico.js"></script>
 <script src="js/datos/udds.js"></script>
 <script src="js/tema6-regeneracion.js"></script>
+<script src="js/tema7-rebote.js"></script>
 </body>
 </html>

@@ -232,6 +232,7 @@ tr.activa td, tr.activa:hover td { color: var(--acento); }
 #tema-8 { --serie-1:#2ba8d6; --serie-2:#e8a33a; }
 #tema-9 { --serie-1:#e0a92c; --serie-2:#5aa9e6; }
 svg .s3 { stroke: var(--serie-3); } svg .s4 { stroke: var(--serie-4); }
+select { font: 500 14px/1 var(--f-texto); padding: 8px 10px; color: var(--tinta); background: var(--superficie); border: 1px solid var(--tinta-2); border-radius: 8px; }
 
 /* ---------- Entradas animadas (entradas.js) ---------- */
 .escena { position: relative; height: 240px; margin-bottom: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
