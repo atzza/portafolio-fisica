@@ -29,6 +29,7 @@
       <a href="#tema-3">3 · Gravedad artificial</a>
       <a href="#tema-4">4 · Llantas F1</a>
       <a href="#tema-5">5 · Control háptico</a>
+      <a href="#tema-6">6 · Frenado regenerativo</a>
     </div>
   </div>
 </nav>
@@ -43,6 +44,7 @@
     <li><a href="#tema-3"><span class="indice__punto" style="--c:#ffb454"></span><span class="indice__num">Tema 3</span><span class="indice__nombre">Gravedad artificial por rotación en hábitats espaciales</span></a></li>
     <li><a href="#tema-4"><span class="indice__punto" style="--c:#ff6a45"></span><span class="indice__num">Tema 4</span><span class="indice__nombre">Llantas de Fórmula 1: la ventana de temperatura y el agarre</span></a></li>
     <li><a href="#tema-5"><span class="indice__punto" style="--c:#2447e6"></span><span class="indice__num">Tema 5</span><span class="indice__nombre">El resorte virtual detrás de un control háptico</span></a></li>
+    <li><a href="#tema-6"><span class="indice__punto" style="--c:#8bff5e"></span><span class="indice__num">Tema 6</span><span class="indice__nombre">Frenado regenerativo en un vehículo eléctrico</span></a></li>
   </ol>
 </header>
 
@@ -532,6 +534,81 @@
   </div>
 </section>
 
+<!-- ============================ TEMA 6 ============================ -->
+<section class="tema" id="tema-6" data-mundo-seccion="6">
+  <div class="contenedor">
+    <div class="tema__cabeza">
+      <span class="tema__num">Tema 6 · Trabajo, energía cinética y transformación de energía</span>
+      <h2>Frenado regenerativo en un vehículo eléctrico</h2>
+      <p class="tema__concepto">Frenar no destruye energía: la transforma. Un freno común la convierte en calor. Un motor eléctrico puede funcionar al revés y devolver una parte a la batería.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Caso de uso en Ingeniería del Software</h3>
+      <div class="partes">
+        <div>
+          <h4>El caso</h4>
+          <p>FASTSim es un simulador de código abierto del National Laboratory of the Rockies, en Estados Unidos, que estima la eficiencia de un vehículo. Recorre un ciclo de conducción estándar paso a paso, y en cada paso toma en cuenta el arrastre, la aceleración, la resistencia a la rodadura, los límites de potencia y el frenado regenerativo.</p>
+        </div>
+        <div>
+          <h4>Por qué modelar la física</h4>
+          <p>Un porcentaje fijo de «energía recuperada» fallaría. El Departamento de Energía de Estados Unidos reporta que lo regenerado equivale al 32 % en ciudad y solo al 6 % en carretera, porque en carretera casi no se frena. Al calcular K = ½·m·v² con la velocidad de cada segundo, el mismo código sirve para cualquier ruta, peso o velocidad.</p>
+        </div>
+        <div>
+          <h4>Lo que cuesta</h4>
+          <p>El modelo necesita datos del auto que no siempre se publican, y cada simplificación tiene un precio: aquí no incluyo pendientes, calefacción ni batería fría. Además, recuperar no es gratis: el motor tiene una potencia máxima y a muy baja velocidad entran los frenos de fricción, así que una parte siempre se disipa.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>El concepto físico</h3>
+      <div class="ecuacion">K = <span class="frac"><span>1</span><span>2</span></span>·m·v² &nbsp;&nbsp;&nbsp; W<sub>neto</sub> = ΔK</div>
+      <div class="ecuacion">F = m·a + <span class="frac"><span>1</span><span>2</span></span>·ρ·C<sub>d</sub>·A·v² + C<sub>r</sub>·m·g &nbsp;&nbsp;&nbsp; P = F·v</div>
+      <div class="ecuacion">E<sub>ruedas</sub> = E<sub>aire</sub> + E<sub>rodadura</sub> + E<sub>frenado</sub></div>
+      <p class="donde">K es la energía cinética y W<sub>neto</sub> el trabajo neto. F es la fuerza que debe dar el motor: la que acelera la masa m, más el arrastre del aire (ρ densidad del aire, C<sub>d</sub>·A coeficiente por área) y la resistencia a la rodadura (C<sub>r</sub>). P es la potencia. Si P es negativa, el auto está frenando y esa energía se puede recuperar con eficiencia η: E<sub>recuperada</sub> = η·E<sub>frenado</sub>. Como el ciclo empieza y termina detenido, ΔK = 0 y toda la energía que llegó a las ruedas salió por el aire, la rodadura o los frenos.</p>
+    </div>
+
+    <div class="bloque">
+      <h3>Recurso de apoyo</h3>
+      <div class="recurso">
+        <p class="recurso__tipo">Visualización de datos</p>
+        <p class="recurso__titulo">En ciudad, casi la mitad de la energía que llega a las ruedas termina en el frenado</p>
+        <div class="control">
+          <label for="regen-eta">Eficiencia de recuperación η <output id="regen-eta-valor" for="regen-eta"></output></label>
+          <input type="range" id="regen-eta" min="0" max="90" step="1" value="70">
+        </div>
+        <div class="lectura" id="regen-lectura" aria-live="polite"></div>
+        <p class="graf-titulo">Velocidad en el ciclo urbano UDDS (km/h)</p>
+        <div id="graf-regen-v" data-titulo="Velocidad contra tiempo en el ciclo urbano UDDS de la EPA, con muchas arrancadas y frenadas"></div>
+        <p class="graf-titulo">Energía acumulada a lo largo del ciclo (Wh)</p>
+        <div id="graf-regen-e" data-titulo="Energía acumulada contra tiempo: la entregada a las ruedas, la de frenado, la recuperada y la que se llevan el aire y la rodadura"></div>
+        <dl class="resultados">
+          <div><dt>Consumo sin regeneración</dt><dd id="regen-sin"></dd></div>
+          <div><dt>Consumo con regeneración</dt><dd id="regen-con"></dd></div>
+          <div><dt>Ahorro</dt><dd id="regen-ahorro"></dd></div>
+          <div><dt>Frenado / energía a las ruedas</dt><dd id="regen-fraccion"></dd></div>
+        </dl>
+        <p class="nota" id="regen-balance"></p>
+        <p class="nota">Pasá el cursor (o el dedo) sobre las gráficas para leer cada segundo y mové η para ver cuánto cambia el consumo. Fuente de las velocidades: ciclo UDDS de la EPA, datos reales de 1369 s. La energía la calculé yo con las ecuaciones de arriba, con un auto de valores ilustrativos: m = 1700 kg, C<sub>d</sub>·A = 0,62 m², C<sub>r</sub> = 0,010, ρ = 1,2 kg/m³, eficiencia de tracción de 85 %, recuperación hasta 50 kW y por encima de 5 km/h. No incluye accesorios ni pendientes.</p>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>Conexiones</h3>
+      <p>En la semana 4 vimos el teorema de trabajo y energía (W<sub>neto</sub> = ΔK), la energía cinética K = ½·m·v² y que la fricción es una fuerza no conservativa: W = −μ·N·d se disipa como calor y sonido. Esa es la diferencia entre los dos caminos del frenado: el freno de fricción disipa la energía, mientras que el motor la transforma en energía química en la batería. La línea de balance de arriba es el mismo teorema: al terminar el ciclo la diferencia da prácticamente cero.</p>
+      <p>Se relaciona con el <a href="#tema-1">tema 1</a> porque la aceleración sale de los cambios de velocidad en cada paso, igual que en la ruta del dron, y con el <a href="#tema-4">tema 4</a>, porque en una frenada fuerte quien detiene al auto sigue siendo la fricción entre la llanta y el suelo.</p>
+      <h3>Fuentes</h3>
+      <ul class="fuentes">
+        <li>U.S. Environmental Protection Agency. <em>Dynamometer Drive Schedules</em> (Urban Dynamometer Driving Schedule, UDDS). <a href="https://www.epa.gov/vehicle-and-fuel-emissions-testing/dynamometer-drive-schedules">epa.gov/vehicle-and-fuel-emissions-testing/dynamometer-drive-schedules</a></li>
+        <li>U.S. Department of Energy. <em>Where the Energy Goes: Electric Cars</em>. fueleconomy.gov. <a href="https://www.fueleconomy.gov/feg/atv-ev.shtml">fueleconomy.gov/feg/atv-ev.shtml</a></li>
+        <li>National Laboratory of the Rockies. <em>FASTSim</em> (repositorio de código abierto). <a href="https://github.com/NREL/fastsim">github.com/NREL/fastsim</a></li>
+        <li>Brooker, A. y otros (2015). <em>FASTSim: A Model to Estimate Vehicle Efficiency, Cost and Performance</em>. SAE Technical Paper 2015-01-0973. <a href="https://saemobilus.sae.org/content/2015-01-0973">saemobilus.sae.org/content/2015-01-0973</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="pie">
@@ -545,5 +622,7 @@
 <script src="js/tema3-habitat.js"></script>
 <script src="js/tema4-llantas.js"></script>
 <script src="js/tema5-haptico.js"></script>
+<script src="js/datos/udds.js"></script>
+<script src="js/tema6-regeneracion.js"></script>
 </body>
 </html>
