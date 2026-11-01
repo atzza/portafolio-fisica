@@ -277,8 +277,8 @@
           <button type="button" data-rpm="6" aria-pressed="false">6 rpm</button>
         </div>
         <div class="lectura" id="habitat-lectura" aria-live="polite"></div>
-        <div class="diagrama">
-          <svg viewBox="0 0 760 460" role="img" aria-label="Diagrama de un hábitat giratorio en forma de anillo con el eje de giro en el centro, el radio r, la aceleración centrípeta apuntando al eje y la velocidad tangencial">
+        <div class="diagrama diagrama--entero">
+          <svg viewBox="0 0 460 460" role="img" aria-label="Diagrama de un hábitat giratorio en forma de anillo con el eje de giro en el centro, el radio r, la aceleración centrípeta apuntando al eje y la velocidad tangencial">
             <defs>
               <marker id="fl-acento" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-acento"/></marker>
               <marker id="fl-tinta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-tinta"/></marker>
@@ -312,7 +312,9 @@
             <!-- velocidad tangencial -->
             <line x1="236" y1="432" x2="318" y2="432" class="t-tinta" stroke-width="2" marker-end="url(#fl-tinta)"/>
             <text id="habitat-v" x="236" y="455" class="d-ec">v = ω·r = 46,8 m/s</text>
-            <!-- ecuaciones anotadas -->
+          </svg>
+          <!-- ecuaciones anotadas: es otro svg para que en celular quede debajo del anillo -->
+          <svg viewBox="454 32 300 346" role="img" aria-label="Ecuaciones del hábitat: aceleración centrípeta, período y frecuencia angular, condición de 1 g y fuerza del piso sobre la persona">
             <g>
               <rect x="462" y="40" width="284" height="72" class="caja"/>
               <text x="478" y="64">Aceleración centrípeta</text>
@@ -544,6 +546,7 @@
 <section class="tema" id="tema-6" data-mundo-seccion="6">
   <div class="contenedor">
     <div class="tema__cabeza">
+      <div class="escena" data-escena="regen" data-titulo="Animación: un auto eléctrico frena hasta detenerse y su energía cinética pasa en parte a la batería"></div>
       <span class="tema__num">Tema 6 · Trabajo, energía cinética y transformación de energía</span>
       <h2>Frenado regenerativo en un vehículo eléctrico</h2>
       <p class="tema__concepto">Frenar no destruye energía: la transforma. Un freno común la convierte en calor. Un motor eléctrico puede funcionar al revés y devolver una parte a la batería.</p>
@@ -619,6 +622,7 @@
 <section class="tema" id="tema-7" data-mundo-seccion="7">
   <div class="contenedor">
     <div class="tema__cabeza">
+      <div class="escena" data-escena="pelota" data-titulo="Animación: dos pelotas caen a la vez; una con e igual a 0,80 rebota cada vez más bajo y otra con e igual a 1,10 sube cada vez más hasta salir de la pantalla"></div>
       <span class="tema__num">Tema 7 · Colisiones, momento lineal y coeficiente de restitución</span>
       <h2>El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal</h2>
       <p class="tema__concepto">Una pelota de videojuego rebota con un solo número. Si ese número o la forma de aplicarlo están mal, se nota de inmediato, aunque uno no sepa explicar por qué.</p>
@@ -712,6 +716,7 @@
 <section class="tema" id="tema-8" data-mundo-seccion="8">
   <div class="contenedor">
     <div class="tema__cabeza">
+      <div class="escena" data-escena="satelite" data-titulo="Animación: un satélite gira hasta apuntar su telescopio a una estrella mientras la rueda de su interior acelera y frena en sentido contrario"></div>
       <span class="tema__num">Tema 8 · Conservación del momento angular y torque</span>
       <h2>Ruedas de reacción: cómo un satélite se gira sin empujarse contra nada</h2>
       <p class="tema__concepto">En el espacio no hay contra qué apoyarse. Para girar, el satélite acelera una rueda que lleva adentro: la rueda gira para un lado y el satélite, para el otro.</p>
@@ -848,6 +853,7 @@
 <section class="tema" id="tema-9" data-mundo-seccion="9">
   <div class="contenedor">
     <div class="tema__cabeza">
+      <div class="escena" data-escena="voyager" data-titulo="Animación: una sonda pasa por detrás de un planeta en movimiento, su trayectoria se curva y sale con más rapidez respecto al Sol"></div>
       <span class="tema__num">Tema 9 · Gravitación universal y conservación en el marco del planeta</span>
       <h2>Asistencia gravitatoria: cómo la Voyager ganó velocidad sin gastar combustible</h2>
       <p class="tema__concepto">Visto desde el planeta, la sonda se va tan rápido como llegó. Visto desde el Sol, el planeta se la lleva con él, y la sonda sale con más rapidez.</p>

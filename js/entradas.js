@@ -445,6 +445,244 @@ const Entradas = (function () {
     };
   };
 
+  // Estrellas pseudoaleatorias: siempre quedan en el mismo lugar
+  function estrellas(svg, W, H, semilla) {
+    const azar = () => (semilla = (semilla * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < W / 8; i++) {
+      S("circle", { class: "e-tinta", cx: azar() * W, cy: azar() * H, r: 0.5 + azar() * 1.1, opacity: 0.2 + azar() * 0.6 }, svg);
+    }
+  }
+
+  // ---------- Tema 6: el auto frena y su energía cinética vuelve a la batería ----------
+  ESCENAS.regen = function (svg, W, H) {
+    const s = W < 560 ? 0.72 : 1.2;
+    const piso = H - 26;
+    const MASA = 1700, V_REAL = 50 / 3.6, ETA = 0.7;  // kg, m/s y eficiencia de recuperación
+    const K0 = (0.5 * MASA * V_REAL * V_REAL) / 3600; // energía cinética inicial en Wh
+    // Frenado con desaceleración constante, igual que en el tema 4
+    const xStop = W * (W < 560 ? 0.42 : 0.42), v0 = W * 0.85, tb = 1.3, xIn = -110 * s;
+    const d = (v0 * tb) / 2, xB = xStop - d, tE = Math.max(0, (xB - xIn) / v0), PARA = tE + tb;
+    const mov = (t) => {
+      if (t < tE) return { x: xIn + v0 * t, v: v0 };
+      if (t < PARA) { const τ = t - tE; return { x: xB + v0 * τ - (0.5 * v0 / tb) * τ * τ, v: v0 * (1 - τ / tb) }; }
+      return { x: xStop, v: 0 };
+    };
+
+    S("line", { class: "l-2", x1: 0, x2: W, y1: piso, y2: piso, "stroke-width": 2 }, svg);
+    S("line", { class: "l-regla", x1: 0, x2: W, y1: piso + 12, y2: piso + 12, "stroke-width": 2, "stroke-dasharray": "22 16" }, svg);
+
+    // Batería que se llena con lo recuperado
+    const bx = Math.min(W - 92, xStop + 130 * s), by = 26, bw = 78, bh = 36;
+    S("rect", { class: "e-sup l-tinta", x: bx, y: by, width: bw, height: bh, rx: 5, "stroke-width": 2 }, svg);
+    S("rect", { class: "e-tinta", x: bx + bw, y: by + 11, width: 5, height: 14 }, svg);
+    const carga = S("rect", { class: "e-acento", x: bx + 4, y: by + 4, height: bh - 8, rx: 2 }, svg);
+    const etqBat = S("text", { x: bx + bw / 2, y: by + bh + 16, "text-anchor": "middle" }, svg);
+    // Energía que viaja de la rueda a la batería
+    const chispas = [0, 1, 2, 3, 4].map(() => S("circle", { class: "e-acento", r: 3.5 }, svg));
+
+    // Auto eléctrico visto de lado; (0, 0) es el suelo bajo el centro
+    const auto = S("g", {}, svg), chasis = S("g", {}, auto);
+    S("path", { class: "e-tinta", d: "M-88 -12 V-30 Q-86 -38 -72 -40 L-46 -44 Q-24 -66 12 -66 Q34 -66 52 -44 L78 -38 Q90 -34 90 -24 V-12 Z" }, chasis);
+    S("path", { class: "e-fondo", d: "M-36 -44 Q-20 -60 -2 -60 V-44 Z M6 -60 Q28 -60 42 -44 H6 Z" }, chasis);
+    S("rect", { class: "e-acento", x: 80, y: -32, width: 9, height: 5, rx: 2 }, chasis);
+    S("path", { class: "e-acento", d: "M-6 -36 L-14 -22 H-7 L-11 -12 L2 -27 H-5 L0 -36 Z" }, chasis);
+    const ruedas = [-54, 54].map((x) => {
+      const g = S("g", { transform: `translate(${x},-15)` }, auto);
+      S("circle", { class: "e-fondo l-tinta", r: 15, "stroke-width": 2 }, g);
+      const gira = S("g", {}, g);
+      S("path", { class: "l-2", d: "M-9 0 H9 M0 -9 V9 M-6 -6 L6 6 M6 -6 L-6 6", "stroke-width": 1.5 }, gira);
+      return { x, gira };
+    });
+    const fuerza = flecha(svg, "flecha-tinta");
+    const velocidad = S("path", { class: "l-2", fill: "none", "stroke-width": 2, "stroke-linecap": "round" }, svg);
+    const [hud1, hud2] = hud(svg, 2);
+
+    return {
+      dur: PARA + 0.6,
+      impacto: PARA - 0.15,
+      cuadro(t) {
+        const m = mov(t), frena = t >= tE && t < PARA;
+        auto.setAttribute("transform", `translate(${m.x},${piso}) scale(${s})`);
+        const d2 = t - PARA;
+        const cabeceo = frena ? 1.4 : d2 >= 0 ? 1.4 * Math.exp(-6 * d2) * Math.cos(16 * d2) : 0;
+        chasis.setAttribute("transform", `rotate(${cabeceo},0,-20)`);
+        ruedas.forEach((r) => r.gira.setAttribute("transform", `rotate(${(m.x / (15 * s)) * 57.3})`));
+        fuerza.poner(m.x + 40 * s, piso - 72 * s, frena ? -44 * s : 0, 0);
+        const largo = 110 * (m.v / v0), atras = m.x - 96 * s;
+        velocidad.setAttribute("d", largo < 4 ? "" : [16, 30, 44].map((y, i) => `M${atras - i * 12} ${piso - y * s} h${-largo * (1 - i * 0.2)}`).join(" "));
+        // K = ½·m·v²: lo que pierde el auto al frenar, multiplicado por η, entra a la batería
+        const vReal = V_REAL * (m.v / v0), k = (0.5 * MASA * vReal * vReal) / 3600;
+        const recuperada = (K0 - k) * ETA;
+        carga.setAttribute("width", Math.max(0, (bw - 8) * (recuperada / (K0 * ETA))));
+        etqBat.textContent = `+${Fis.n(recuperada, 1)} Wh`;
+        chispas.forEach((c, i) => {
+          const u = (t * 1.8 + i / 5) % 1;
+          const x0 = m.x + 54 * s, y0 = piso - 16 * s, x1 = bx + 8, y1 = by + bh / 2;
+          c.setAttribute("cx", x0 + (x1 - x0) * u);
+          c.setAttribute("cy", y0 + (y1 - y0) * u - Math.sin(u * Math.PI) * 26);
+          c.style.display = frena ? "" : "none";
+        });
+        hud1.textContent = `v = ${Fis.n(vReal * 3.6, 0)} km/h · K = ${Fis.n(k, 1)} Wh`;
+        hud2.textContent = frena ? `E recuperada = η·ΔK (η = 70 %)` : d2 >= 0 ? "detenido: K se transformó" : "acercándose al alto";
+      },
+    };
+  };
+
+  // ---------- Tema 7: la misma pelota con un rebote creíble y con uno imposible ----------
+  ESCENAS.pelota = function (svg, W, H) {
+    const piso = H - 22, G = H < 220 ? 760 : 980, H0 = piso - 58, R = H < 220 ? 11 : 14;
+    // Altura sobre el piso al tiempo t: cae y rebota con v' = e·v, con e menor o mayor que 1
+    function altura(t, e) {
+      let v = Math.sqrt(2 * G * H0), caida = v / G;
+      if (t < caida) return { y: H0 - 0.5 * G * t * t, n: 0 };
+      t -= caida;
+      for (let n = 1; n < 30; n++) {
+        v *= e;
+        if (v < 18) return { y: 0, n };
+        const vuelo = (2 * v) / G;
+        if (t < vuelo) return { y: v * t - 0.5 * G * t * t, n, dt: t, vuelo };
+        t -= vuelo;
+      }
+      return { y: 0, n: 30 };
+    }
+    S("line", { class: "l-2", x1: 0, x2: W, y1: piso, y2: piso, "stroke-width": 2 }, svg);
+    const buena = W * 0.34, mala = W * 0.7;
+    // Alturas que predice h' = e²·h para el rebote creíble
+    for (let n = 1, h = H0 * 0.64; n <= 3; n++, h *= 0.64) {
+      S("line", { class: "l-acento", x1: buena - 26, x2: buena + 26, y1: piso - h - R, y2: piso - h - R, "stroke-width": 1.5, "stroke-dasharray": "3 3" }, svg);
+    }
+    S("text", { x: buena, y: piso + 16, "text-anchor": "middle" }, svg).textContent = "e = 0,80";
+    S("text", { x: mala, y: piso + 16, "text-anchor": "middle" }, svg).textContent = "e = 1,10 (imposible)";
+    const b1 = S("ellipse", { class: "e-acento" }, svg), b2 = S("ellipse", { class: "e-tinta-2" }, svg);
+    const [hud1, hud2] = hud(svg, 2);
+    hud1.textContent = "v′ = −e·v · h′ = e²·h";
+    const poner = (el, x, a, t, e) => {
+      const r = altura(t, e);
+      const aplasta = r.y < 8 && r.n > 0 ? 0.72 + (0.28 * r.y) / 8 : 1;
+      el.setAttribute("cx", x);
+      el.setAttribute("cy", piso - r.y - R * aplasta);
+      el.setAttribute("rx", R / Math.sqrt(aplasta));
+      el.setAttribute("ry", R * aplasta);
+      return r;
+    };
+    return {
+      dur: 3.4,
+      impacto: 1.5,
+      cuadro(t) {
+        const r1 = poner(b1, buena, 0, t, 0.8);
+        poner(b2, mala, 0, t, 1.1);
+        hud2.textContent = `rebotes de la pelota creíble: ${r1.n}`;
+      },
+    };
+  };
+
+  // ---------- Tema 8: el satélite gira para apuntar a una estrella usando su rueda ----------
+  ESCENAS.satelite = function (svg, W, H) {
+    estrellas(svg, W, H, 23);
+    const k = H < 220 ? 0.62 : 0.95, cx = W * 0.5, cy = H * 0.56;
+    const T = 2.6, GIRO = -62;                        // s y grados: acelera la primera mitad y frena la segunda
+    const I_S = 1500, I_R = 0.08, ACELERADA = 25;     // la escena va 25 veces más rápido que el giro real
+    const rumbo = ((-90 + GIRO) * Math.PI) / 180;     // el telescopio empieza hacia arriba y termina aquí
+    const objetivo = { x: cx + 112 * k * Math.cos(rumbo), y: cy + 112 * k * Math.sin(rumbo) };
+    const estrella = S("path", { class: "e-acento", d: "M0 -9 L2.5 -2.5 L9 0 L2.5 2.5 L0 9 L-2.5 2.5 L-9 0 L-2.5 -2.5 Z", transform: `translate(${objetivo.x},${objetivo.y})` }, svg);
+    const haz = S("line", { class: "l-acento", "stroke-width": 1.5, "stroke-dasharray": "4 4" }, svg);
+    const cuerpo = S("g", {}, svg);
+    [-1, 1].forEach((l) => {
+      S("rect", { class: "e-sup l-2", x: l > 0 ? 50 * k : -130 * k, y: -15 * k, width: 80 * k, height: 30 * k, "stroke-width": 1 }, cuerpo);
+      S("line", { class: "l-2", x1: l * 36 * k, x2: l * 50 * k, y1: 0, y2: 0, "stroke-width": 3 }, cuerpo);
+    });
+    S("rect", { class: "e-regla l-tinta", x: -36 * k, y: -36 * k, width: 72 * k, height: 72 * k, rx: 5, "stroke-width": 1.5 }, cuerpo);
+    // Tubo del telescopio, en la parte superior del cuerpo
+    S("rect", { class: "e-sup l-tinta", x: -11 * k, y: -60 * k, width: 22 * k, height: 24 * k, "stroke-width": 1.5 }, cuerpo);
+    const rueda = S("g", {}, cuerpo);
+    S("circle", { class: "l-acento", r: 24 * k, fill: "none", "stroke-width": 3.5 }, rueda);
+    S("path", { class: "l-acento", d: `M0 ${-24 * k} V${24 * k} M${-24 * k} 0 H${24 * k}`, "stroke-width": 1.5 }, rueda);
+    S("circle", { class: "e-tinta", cy: -24 * k, r: 3 }, rueda);
+    const [hud1, hud2] = hud(svg, 2);
+    const omegaS = (t) => (t <= 0 || t >= T ? 0 : vTramo(0, (GIRO * Math.PI) / 180, t, T));
+    return {
+      dur: T + 0.5,
+      impacto: T - 0.2,
+      cuadro(t) {
+        const ang = tramo(0, GIRO, t, T);
+        cuerpo.setAttribute("transform", `translate(${cx},${cy}) rotate(${ang})`);
+        // Conservación del momento angular: ω_r = −(I_s / I_r)·ω_s, con los valores reales del giro
+        const ws = omegaS(t) / ACELERADA, wr = (-I_S / I_R) * ws, rpmReal = (wr * 60) / (2 * Math.PI);
+        // Giro dibujado de la rueda: proporcional a la integral de ω_s, relativo al cuerpo
+        rueda.setAttribute("transform", `rotate(${-ang * 7})`);
+        const listo = t >= T - 0.1;
+        haz.style.display = listo ? "" : "none";
+        estrella.style.opacity = listo ? 1 : 0.45;
+        const rad = ((ang - 90) * Math.PI) / 180;
+        haz.setAttribute("x1", cx + 62 * k * Math.cos(rad));
+        haz.setAttribute("y1", cy + 62 * k * Math.sin(rad));
+        haz.setAttribute("x2", objetivo.x);
+        haz.setAttribute("y2", objetivo.y);
+        hud1.textContent = `ωᵣ = ${Fis.n(rpmReal, 0)} rpm · ωₛ = ${Fis.n((ws * 180) / Math.PI, 2).replace("-", "−")} °/s`;
+        hud2.textContent = listo ? "apuntando: la rueda frenó y L total sigue en 0" : "Iₛ·ωₛ + Iᵣ·ωᵣ = 0 (25 veces más rápido que lo real)";
+      },
+    };
+  };
+
+  // ---------- Tema 9: una sonda pasa detrás de un planeta en movimiento y sale más rápido ----------
+  ESCENAS.voyager = function (svg, W, H) {
+    estrellas(svg, W, H, 31);
+    const u = Math.min(H, W / 2.5);                  // unidad de longitud de la escena
+    const T = 2.8, TE = 1.25, PASO = 1 / 240;        // duración, instante del encuentro y paso de cálculo
+    const V = 0.9 * u, VREL = 0.95 * u, ALFA = (58 * Math.PI) / 180, B = 0.36 * u;
+    const GM = 0.75 * B * VREL * VREL;               // gravedad del planeta: da unos 75° de desvío
+    const cx = W * 0.5, cy = H * 0.5;
+    const planeta = (t) => ({ x: cx + V * (t - TE), y: cy + 0.05 * u });
+    // Velocidad relativa al planeta al llegar, y posición inicial para pasar por detrás de él
+    const dir = { x: -Math.cos(ALFA), y: -Math.sin(ALFA) }, nor = { x: -Math.sin(ALFA), y: Math.cos(ALFA) };
+    const p0 = planeta(0);
+    let r = { x: p0.x - dir.x * VREL * TE * 1.25 + nor.x * B, y: p0.y - dir.y * VREL * TE * 1.25 + nor.y * B };
+    let v = { x: dir.x * VREL + V, y: dir.y * VREL };
+    // Se integra de una vez F = G·M·m/r², y luego solo se muestran los resultados
+    const estados = [];
+    for (let i = 0; i <= Math.ceil(T / PASO); i++) {
+      const t = i * PASO, p = planeta(t);
+      const dx = p.x - r.x, dy = p.y - r.y, d3 = Math.pow(dx * dx + dy * dy, 1.5);
+      v = { x: v.x + (GM * dx / d3) * PASO, y: v.y + (GM * dy / d3) * PASO };
+      r = { x: r.x + v.x * PASO, y: r.y + v.y * PASO };
+      estados.push({ x: r.x, y: r.y, sol: Math.hypot(v.x, v.y), rel: Math.hypot(v.x - V, v.y) });
+    }
+    const estado = (t) => estados[Math.max(0, Math.min(estados.length - 1, Math.round(t / PASO)))];
+    const KM_S = 13 / V; // escala: el planeta se mueve a 13 km/s, como Júpiter
+
+    const R = 0.15 * u;
+    const pl = S("g", {}, svg);
+    S("circle", { class: "e-acento", r: R, opacity: 0.9 }, pl);
+    [-0.55, -0.15, 0.3, 0.65].forEach((f, i) => {
+      const y = f * R, a = Math.sqrt(R * R - y * y);
+      S("line", { class: "l-fondo", x1: -a, x2: a, y1: y, y2: y, "stroke-width": i % 2 ? 3 : 1.5, opacity: 0.55 }, pl);
+    });
+    const velPlaneta = flecha(svg);
+    const estela = S("polyline", { class: "l-2", fill: "none", "stroke-width": 1.5, "stroke-dasharray": "2 5" }, svg);
+    const sonda = S("g", {}, svg);
+    S("circle", { class: "e-tinta", r: 3.5 }, sonda);
+    S("path", { class: "l-tinta", d: "M-7 -5 Q-2 0 -7 5", fill: "none", "stroke-width": 1.5 }, sonda);
+    const velSonda = flecha(svg, "flecha-tinta");
+    const [hud1, hud2] = hud(svg, 2);
+    return {
+      dur: T,
+      impacto: TE + 0.45,
+      cuadro(t) {
+        const p = planeta(t), e = estado(t), previo = estado(t - 0.02);
+        pl.setAttribute("transform", `translate(${p.x},${p.y})`);
+        velPlaneta.poner(p.x, p.y + R + 10, 0.4 * V, 0);
+        sonda.setAttribute("transform", `translate(${e.x},${e.y}) rotate(${(Math.atan2(e.y - previo.y, e.x - previo.x) * 180) / Math.PI})`);
+        const dvx = (e.x - previo.x) / 0.02, dvy = (e.y - previo.y) / 0.02;
+        velSonda.poner(e.x, e.y, dvx * 0.14, dvy * 0.14);
+        const pts = [];
+        for (let s = 0; s <= t; s += 0.03) { const q = estado(s); pts.push(q.x.toFixed(1) + "," + q.y.toFixed(1)); }
+        estela.setAttribute("points", pts.join(" "));
+        hud1.textContent = `respecto al Sol: ${Fis.n(e.sol * KM_S, 1)} km/s`;
+        hud2.textContent = `respecto al planeta: ${Fis.n(e.rel * KM_S, 1)} km/s`;
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,
