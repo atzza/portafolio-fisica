@@ -2,7 +2,8 @@
 
 Sitio web estático de Azarela Fernández Sibaja para el portafolio del curso. Es individual y se
 publica en GitHub Pages. Avance 1: 10 de octubre de 2026. Avance 2: 31 de octubre de 2026, 11:59 PM
-(temas 1 a 9; los 5 primeros se vuelven a calificar). Falta la entrega final (4 temas más).
+(temas 1 a 9). Entrega final: sábado 21 de noviembre de 2026, 11:59 PM: los 13 temas, con los
+9 anteriores corregidos según las observaciones del profe, más la sección de cierre «Qué aprendí».
 
 ## Qué pide la consigna (no romper esto)
 
@@ -16,7 +17,12 @@ publica en GitHub Pages. Avance 1: 10 de octubre de 2026. Avance 2: 31 de octubr
   de datos con fuente citada, tema 5 video incrustado con análisis escrito y curva F contra x,
   tema 6 visualización del balance de energía en un ciclo de conducción, tema 7 simulación con un
   control de e, tema 8 diagrama de satélite y rueda con qué pasa en la velocidad máxima, tema 9
-  visualización de la rapidez respecto al Sol con los saltos en cada encuentro.
+  visualización de la rapidez respecto al Sol con los saltos en cada encuentro, tema 10 simulación
+  con rigidez y amortiguamiento (tres regímenes), tema 11 dos audios con la misma nota y distinto timbre,
+  con forma de onda, contenido armónico y análisis, tema 12 video con análisis (frecuencia natural,
+  excitación y por qué crece la amplitud), tema 13 visualización de velocidad o presión según la sección.
+- Sección final «Qué aprendí»: (a) tres pares de temas que comparten principio físico, un párrafo
+  por par; (b) una aplicación propia de media página que no esté en la lista.
 - Todo contenido de terceros va citado con su fuente. No se aceptan imágenes ni diagramas descargados.
 - La navegación debe llevar a cualquier tema sin buscar.
 - El portafolio es acumulativo: en los avances 2 y 3 se agregan 8 temas más (13 en total).
@@ -46,6 +52,11 @@ publica en GitHub Pages. Avance 1: 10 de octubre de 2026. Avance 2: 31 de octubr
 - `js/tema6-regeneracion.js`: balance de energía con el ciclo UDDS (`js/datos/udds.js`, datos de la EPA).
 - `js/tema7-rebote.js`: simulación del rebote con e, umbral de Unity y paso de física.
 - `js/tema8-rueda.js`: botones de rpm del diagrama del satélite.
+- `js/tema10-resorte.js`: simulación del resorte amortiguado (k, c, m = 1), con preajustes de Framer Motion y de Apple.
+- `js/tema11-sonido.js`: forma de onda y espectro de las dos muestras de `audio/` (generadas con `herramientas/generar_audio.py`).
+- `js/tema12-resonancia.js`: curva del factor de amplificación de la oscilación forzada.
+- `js/tema13-enfriamiento.js`: velocidad y presión del refrigerante por tramo (continuidad, Bernoulli y Darcy-Weisbach).
+- La sección `#que-aprendi` (mundo 14) no tiene escena: lleva la clase `revelado` fija.
 - `js/tema9-voyager.js`: rapidez de las Voyager (`js/datos/voyager.js`, datos de JPL Horizons). La tabla usa
   valores calculados con el dato de cada día, que no están todos en el archivo reducido.
 - Los diagramas de los temas 3 y 8 son SVG escritos a mano dentro de `index.html`, cada uno en dos partes
@@ -89,7 +100,13 @@ Sin frameworks ni paso de compilación: HTML, CSS y JavaScript puros. Se abre co
   Faltan por revisar las notas de momento angular y gravitación (semanas 7 en adelante, están en Notion):
   las conexiones de los temas 8 y 9 solo citan lo que se ha podido comprobar en las notas.
 
-## Pendientes al 31 de octubre
+## Pendientes de la entrega final
+
+- Corregir los temas 1 a 9 con las observaciones del profe (pedírselas a Azarela).
+- Tema 12: confirmar viendo el video que se ven los aspectos que describe el análisis.
+- Abrir y verificar los enlaces de las fuentes de los temas 10 a 13.
+
+## Pendientes al 31 de octubre (ya entregado)
 
 - Entregar en Moodle la URL del sitio y la del repositorio (las hace Azarela).
 - Sitio https://atzza.github.io/portafolio-fisica/ y repositorio https://github.com/atzza/portafolio-fisica

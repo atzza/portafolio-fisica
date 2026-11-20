@@ -289,3 +289,33 @@ html.entradas .portada:not(.lista) h1 { visibility: hidden; }
   .esc-gira { animation: none; }
   .tema__cabeza > :not(.escena) { transition: none; }
 }
+
+/* ---------- Entrega final: temas 10 a 13 y cierre ---------- */
+body[data-mundo="10"] { --fondo:#1a1530; --superficie:#251e45; --tinta:#f1eefb; --tinta-2:#b3aad6; --acento:#b18cff; --regla:#3b3266; }
+body[data-mundo="11"] { --fondo:#f6efe4; --superficie:#fffaf2; --tinta:#2a1d12; --tinta-2:#6f5a46; --acento:#d9480f; --regla:#e3d3bd; color-scheme: light; }
+body[data-mundo="12"] { --fondo:#14181c; --superficie:#1e252b; --tinta:#eef2f5; --tinta-2:#a4b0ba; --acento:#ff4d4d; --regla:#2f3a44; }
+body[data-mundo="13"] { --fondo:#001a33; --superficie:#032a4d; --tinta:#e6f2ff; --tinta-2:#9dbbd9; --acento:#3d9bff; --regla:#164066; }
+body[data-mundo="14"] { --fondo:#121212; --superficie:#1d1d1d; --tinta:#f5f5f5; --tinta-2:#b0b0b0; --acento:#f5f5f5; --regla:#333333; }
+#tema-10 { --serie-1:#9b7bf2; --serie-2:#e8a33a; }
+#tema-11 { --serie-1:#c2410c; --serie-2:#2f6fd6; }
+#tema-12 { --serie-1:#e05a5a; --serie-2:#e8a33a; --serie-3:#6db4e8; }
+#tema-13 { --serie-1:#4fb3ff; --serie-2:#f0a03c; }
+audio { width: 100%; max-width: 420px; }
+#muelle-escena svg { width: 100%; height: auto; }
+#muelle-escena .tarjeta { fill: var(--acento); }
+#muelle-escena .meta { stroke: var(--tinta-2); stroke-dasharray: 4 4; }
+#muelle-escena .resorte { fill: none; stroke: var(--tinta); stroke-width: 2; stroke-linejoin: round; }
+#muelle-escena .riel { stroke: var(--regla); stroke-width: 2; }
+.tema.cierre h2::after { background: conic-gradient(#5ef2c8 0 8%, #ffd23f 0 16%, #ffb454 0 24%, #ff6a45 0 31%, #2447e6 0 39%, #8bff5e 0 47%, #ff5ec4 0 54%, #4fd2ff 0 62%, #f2c14e 0 70%, #b18cff 0 77%, #d9480f 0 85%, #ff4d4d 0 92%, #3d9bff 0); }
+.conexion { display: grid; gap: 8px; padding: 22px 24px; background: var(--superficie); max-width: 78ch; }
+.conexion p { margin: 0; }
+.conexion__par { font: 700 16px/1.3 var(--f-titulo); display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.conexion__par a { color: var(--tinta); text-decoration: none; border-bottom: 2px solid var(--regla); }
+.conexion__par a:hover { border-color: var(--tinta); }
+.conexion__par span { color: var(--tinta-2); }
+.conexion__principio { font: 500 13px/1.4 var(--f-dato); color: var(--tinta-2); }
+.propia { display: grid; gap: 14px; max-width: 70ch; }
+.propia p { margin: 0; }
+@media (max-width: 760px) { .conexion { padding: 18px 14px; } }
+#muelle-regimen { font-size: 19px; overflow-wrap: anywhere; }
+.resultados > div { min-width: 0; }

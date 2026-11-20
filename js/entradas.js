@@ -683,6 +683,119 @@ const Entradas = (function () {
     };
   };
 
+  // ---------- Tema 10: tres tarjetas con la misma rigidez y distinto amortiguamiento ----------
+  ESCENAS.muelle = function (svg, W, H) {
+    const filas = [{ z: 0.25, t: "ζ = 0,25 · subamortiguado" }, { z: 1, t: "ζ = 1 · crítico" }, { z: 2.5, t: "ζ = 2,5 · sobreamortiguado" }];
+    const w0 = 9;                                     // rad/s, misma rigidez para las tres
+    const x0 = 28, meta = W - Math.min(150, W * 0.3), ancho = H < 220 ? 34 : 44;
+    const alto = (H - 40) / 3;
+    S("line", { class: "l-2", x1: meta + ancho / 2, x2: meta + ancho / 2, y1: 26, y2: H - 6, "stroke-dasharray": "4 4" }, svg);
+    const [hud1] = hud(svg, 1);
+    hud1.textContent = "m·x″ + c·x′ + k·x = 0 · misma k, distinta c";
+    const cajas = filas.map((f, i) => {
+      const y = 30 + i * alto;
+      S("text", { class: "e-tinta-2", x: x0, y: y + alto - 6 }, svg).textContent = f.t;
+      return { ...f, rect: S("rect", { class: i === 1 ? "e-acento" : "e-tinta-2", y: y + 2, width: ancho, height: alto - 22, rx: 8 }, svg) };
+    });
+    // Posición exacta del oscilador amortiguado que sale de x = 1 en reposo (x = distancia a la meta)
+    function x(t, z) {
+      if (Math.abs(z - 1) < 1e-6) return (1 + w0 * t) * Math.exp(-w0 * t);
+      if (z < 1) { const wd = w0 * Math.sqrt(1 - z * z); return Math.exp(-z * w0 * t) * (Math.cos(wd * t) + ((z * w0) / wd) * Math.sin(wd * t)); }
+      const s = w0 * Math.sqrt(z * z - 1), r1 = -z * w0 + s, r2 = -z * w0 - s;
+      return (r2 * Math.exp(r1 * t) - r1 * Math.exp(r2 * t)) / (r2 - r1);
+    }
+    return {
+      dur: 2.4,
+      impacto: 1.2,
+      cuadro(t) { cajas.forEach((c) => c.rect.setAttribute("x", meta - (meta - x0) * x(t, c.z))); },
+    };
+  };
+
+  // ---------- Tema 11: a la fundamental se le suman armónicos hasta formar un diente de sierra ----------
+  ESCENAS.armonicos = function (svg, W, H) {
+    const medio = H / 2 + 8, amp = H * 0.22, ciclos = 3;
+    S("line", { class: "l-regla", x1: 0, x2: W, y1: medio, y2: medio, "stroke-width": 1 }, svg);
+    const linea = S("polyline", { fill: "none", class: "l-acento", "stroke-width": 2.5, "stroke-linejoin": "round" }, svg);
+    const [hud1, hud2] = hud(svg, 2);
+    hud1.textContent = "y(t) = Σ (1/n)·sen(2π·n·f₀·t)";
+    return {
+      dur: 3,
+      impacto: 1.6,
+      cuadro(t) {
+        const N = Math.max(1, Math.min(12, 1 + Math.floor(t * 4.5)));
+        let p = "";
+        for (let i = 0; i <= 400; i++) {
+          const u = (ciclos * i) / 400;
+          let y = 0;
+          for (let n = 1; n <= N; n++) y += Math.sin(2 * Math.PI * n * u) / n;
+          p += `${((W * i) / 400).toFixed(1)},${(medio - (amp * y) / 1.5).toFixed(1)} `;
+        }
+        linea.setAttribute("points", p);
+        hud2.textContent = `armónicos sumados: ${N} · misma nota, timbre cada vez más brillante`;
+      },
+    };
+  };
+
+  // ---------- Tema 12: el tablero de Tacoma visto de frente, torciéndose cada vez más ----------
+  ESCENAS.puente = function (svg, W, H) {
+    const cx = W / 2, cy = H / 2 + 14, largo = Math.min(W * 0.55, 360);
+    const T = 1.1;                                   // s por ciclo en la animación (el real era 5 s)
+    S("line", { class: "l-2", x1: cx, x2: cx, y1: 26, y2: H - 6, "stroke-dasharray": "3 5" }, svg);
+    const tablero = S("rect", { class: "e-tinta", x: cx - largo / 2, y: cy - 6, width: largo, height: 12, rx: 3 }, svg);
+    const centro = S("circle", { class: "e-acento", cx, cy, r: 5 }, svg);
+    const postes = [-1, 1].map(() => S("line", { class: "l-acento", "stroke-width": 3, "stroke-linecap": "round" }, svg));
+    const [hud1, hud2] = hud(svg, 2);
+    hud1.textContent = "torsión con período fijo · la amplitud crece en cada ciclo";
+    return {
+      dur: 4.2,
+      impacto: 2.2,
+      cuadro(t) {
+        const ang = 2 + 30 * (Math.exp(0.7 * t) - 1) / (Math.exp(0.7 * 4.2) - 1);   // grados
+        const a = ang * Math.sin((2 * Math.PI * t) / T);
+        tablero.setAttribute("transform", `rotate(${a.toFixed(2)} ${cx} ${cy})`);
+        centro.setAttribute("cy", cy);
+        const rad = (a * Math.PI) / 180;
+        [-1, 1].forEach((lado, i) => {
+          const bx = cx + lado * (largo / 2 - 14) * Math.cos(rad), by = cy + lado * (largo / 2 - 14) * Math.sin(rad);
+          postes[i].setAttribute("x1", bx); postes[i].setAttribute("y1", by - 6);
+          postes[i].setAttribute("x2", bx + 34 * Math.sin(rad)); postes[i].setAttribute("y2", by - 6 - 34 * Math.cos(rad));
+        });
+        hud2.textContent = `ángulo máximo de este ciclo: ${Fis.n(ang, 0)}°`;
+      },
+    };
+  };
+
+  // ---------- Tema 13: el refrigerante acelera donde la tubería se angosta ----------
+  ESCENAS.tuberia = function (svg, W, H) {
+    const cy = H / 2 + 10, R1 = H * 0.26, R2 = H * 0.09;
+    const x1 = W * 0.38, x2 = W * 0.5, x3 = W * 0.62, x4 = W * 0.74;
+    const radio = (x) => x < x1 || x > x4 ? R1 : x < x2 ? R1 + ((R2 - R1) * (x - x1)) / (x2 - x1) : x <= x3 ? R2 : R2 + ((R1 - R2) * (x - x3)) / (x4 - x3);
+    let borde = "", borde2 = "";
+    for (let i = 0; i <= 100; i++) { const x = (W * i) / 100; borde += `${x},${cy - radio(x)} `; borde2 += `${x},${cy + radio(x)} `; }
+    S("polyline", { points: borde, fill: "none", class: "l-tinta", "stroke-width": 2 }, svg);
+    S("polyline", { points: borde2, fill: "none", class: "l-tinta", "stroke-width": 2 }, svg);
+    // Cada partícula conserva su fracción del radio; su velocidad es v = Q/A, con A ∝ r²
+    const V1 = W * 0.12;                               // px/s en la parte ancha
+    const parts = Array.from({ length: 36 }, (_, i) => ({ f: ((i * 37) % 9) / 4.5 - 1, x0: (i / 36) * W, el: S("circle", { class: "e-acento", r: 3 }, svg) }));
+    const [hud1, hud2] = hud(svg, 2);
+    hud1.textContent = "Q = A₁·v₁ = A₂·v₂";
+    hud2.textContent = `parte angosta: ${Fis.n((R1 / R2) ** 2, 1)} veces más rápido`;
+    return {
+      dur: 3.2,
+      impacto: 1.4,
+      cuadro(t) {
+        parts.forEach((p) => {
+          // Se avanza en pasos pequeños para integrar dx/dt = V1·(R1/r)²
+          let x = p.x0;
+          for (let s = 0; s < t; s += 1 / 120) { x += (V1 * (R1 / radio(x % W)) ** 2) / 120; }
+          x %= W;
+          p.el.setAttribute("cx", x);
+          p.el.setAttribute("cy", cy + p.f * radio(x) * 0.8);
+        });
+      },
+    };
+  };
+
   // ---------- Motor: decide cuándo se reproduce cada escena ----------
   const escenas = [...document.querySelectorAll(".escena")].map((el) => ({
     el, seccion: el.closest(".tema"), activa: false, visible: false, jugada: false, anim: 0,

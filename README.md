@@ -1,7 +1,7 @@
 # Portafolio de evidencias · Física I
 
 Portafolio de Azarela Fernández Sibaja para el curso FUN-18 Física I (Universidad CENFOTEC, 2026-C3).
-Documenta cómo la cinemática y la dinámica aparecen en software real.
+Documenta cómo la cinemática, la dinámica, las oscilaciones y los fluidos aparecen en software real.
 
 ## Temas del avance 1
 
@@ -17,6 +17,15 @@ Documenta cómo la cinemática y la dinámica aparecen en software real.
 7. El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal
 8. Ruedas de reacción: cómo un satélite se gira sin empujarse contra nada
 9. Asistencia gravitatoria: cómo la Voyager ganó velocidad sin gastar combustible
+
+## Temas de la entrega final
+
+10. Spring animations: el resorte amortiguado detrás de las animaciones de iOS y de Framer Motion
+11. Síntesis de sonido: armónicos, timbre y el sintetizador
+12. Resonancia estructural: Tacoma Narrows y por qué las tropas rompen el paso al cruzar un puente
+13. Enfriamiento líquido de un centro de datos: continuidad, caudal y Bernoulli
+
+Al final, la sección «Qué aprendí».
 
 ## Cómo verlo
 
